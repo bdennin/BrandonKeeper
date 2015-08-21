@@ -19,8 +19,7 @@ private:
 	static const int HORIZONTAL_PIXELS = TILE_SIZE * MAP_SIZE;
 
 	static const int SCROLL_ZONE_WIDTH = TILE_SIZE / 2;
-	static const int SCROLL_SPEED = SCROLL_ZONE_WIDTH;
-
+	
 	sf::RenderWindow* window;
 	sf::View* camera;
 	sf::Texture* textureMap;
@@ -29,14 +28,15 @@ private:
 	std::vector<Tile*> tiles;
 	std::ofstream log;
 
-	unsigned char cameraScrolls;
+	int scrollSpeed;
+	int cameraScrolls;
 	bool isDebugging;
 
 	void mainLoop();
 	void initialize();
 	void initializeMap();
 	void update();
-	void updateCamera();
+	void updateCamera(int scrollSpeed);
 	void updateHover();
 	void lockMouse(bool isLocked);
 	void renderFrame();

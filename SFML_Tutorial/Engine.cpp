@@ -41,8 +41,9 @@ void Engine::initialize() {
 	this->textureMap = new sf::Texture();
 	
 	this->tiles = std::vector<Tile*>();
-	this->cameraScrolls = 1;
+	this->cameraScrolls = 0;
 	this->focusedTile = nullptr;
+	this->scrollSpeed = this->SCROLL_ZONE_WIDTH;
 
 	this->window->setVerticalSyncEnabled(true);	
 	this->window->setFramerateLimit(120);
@@ -93,34 +94,32 @@ void Engine::processInput() {
 				if (event.mouseButton.button == sf::Mouse::Left)
 					this->focusedTile->toggleSelected();
 
-				sf::Vector2i windowPosition = sf::Mouse::getPosition(*this->window);
-				sf::Vector2f globalPosition = this->window->mapPixelToCoords(windowPosition);
-
-				int x = globalPosition.x;
-				int y = globalPosition.y;
-
-				int windowX = windowPosition.x;
-				int windowY = windowPosition.y;
-
-				log << "world x: " << x << " world y: " << y << " window x: " << windowX << " window y: " << windowY << "\n";
 				break;
 			}
 			case sf::Event::MouseWheelScrolled: {
 				
-				sf::Vector2f cameraBounds = this->camera->getSize();
-				int camWidth = cameraBounds.x;
-				int camHeight = cameraBounds.y;
-				
 				if (event.mouseWheelScroll.delta < 0 && this->cameraScrolls > 0) {
+					
 					--(this->cameraScrolls);
-					this->camera->zoom(2.0f);
-					log << camWidth << " = camWidth; " << camHeight << " = camHeight;\n";
+					this->camera->zoom(1.25f);
 				}
-				else if (event.mouseWheelScroll.delta > 0 && this->cameraScrolls < 2) {
+				else if (event.mouseWheelScroll.delta > 0 && this->cameraScrolls < 4) {
 					++(this->cameraScrolls);
-					this->camera->zoom(.5f);
-					log << camWidth << " = camWidth; " << camHeight << " = camHeight;\n";
+					this->camera->zoom(.8f);
 				}
+
+				//this event forces the camera to update if areas outside the map are displayed after zooming out : "eliminates black space"
+				sf::Vector2i firstPosition(0, 0);
+				sf::Vector2i lastPosition(this->HORIZONTAL_PIXELS - 1, this->HORIZONTAL_PIXELS - 1);
+				sf::Vector2i currentPosition = sf::Mouse::getPosition();
+
+				sf::Mouse::setPosition(lastPosition, *this->window);
+				this->updateCamera(0);
+				sf::Mouse::setPosition(firstPosition, *this->window);
+				this->updateCamera(0);
+
+				sf::Mouse::setPosition(currentPosition);
+
 				break;
 			}
 			case sf::Event::GainedFocus: {
@@ -154,11 +153,11 @@ void Engine::processInput() {
 
 void Engine::update() {
 
-	this->updateCamera();
+	this->updateCamera(this->scrollSpeed);
 	this->updateHover();
 }
 
-void Engine::updateCamera() {
+void Engine::updateCamera(int scrollSpeed) {
 
 	sf::Vector2i windowPosition = sf::Mouse::getPosition(*this->window);
 	sf::Vector2f globalPosition = this->window->mapPixelToCoords(windowPosition);
@@ -183,8 +182,8 @@ void Engine::updateCamera() {
 	//mouse is in left portion of the window
 	if (windowX < this->SCROLL_ZONE_WIDTH) {
 
-		if (camX > halfWidth + this->SCROLL_SPEED) {
-			camX -= this->SCROLL_SPEED;
+		if (camX > halfWidth + scrollSpeed) {
+			camX -= scrollSpeed;
 		}
 		else {
 			camX = halfWidth;
@@ -193,8 +192,8 @@ void Engine::updateCamera() {
 	//mouse is in right portion of the window
 	else if (windowX > this->WINDOW_WIDTH - this->SCROLL_ZONE_WIDTH) {
 
-		if (camX < this->HORIZONTAL_PIXELS - halfWidth - this->SCROLL_SPEED) {
-			camX += this->SCROLL_SPEED;
+		if (camX < this->HORIZONTAL_PIXELS - halfWidth - scrollSpeed) {
+			camX += scrollSpeed;
 		}
 		else {
 			camX = this->HORIZONTAL_PIXELS - halfWidth;
@@ -204,8 +203,8 @@ void Engine::updateCamera() {
 	//mouse is in top portion of the window
 	if (windowY < this->SCROLL_ZONE_WIDTH) {
 
-		if (camY > halfHeight + this->SCROLL_SPEED) {
-			camY -= this->SCROLL_SPEED;
+		if (camY > halfHeight + scrollSpeed) {
+			camY -= scrollSpeed;
 		}
 		else {
 			camY = halfHeight;
@@ -214,8 +213,8 @@ void Engine::updateCamera() {
 	//mouse is in bottom portion of the window
 	else if (windowY > this->WINDOW_HEIGHT - this->SCROLL_ZONE_WIDTH) {
 
-		if (camY < this->HORIZONTAL_PIXELS - halfHeight - this->SCROLL_SPEED) {
-			camY += this->SCROLL_SPEED;
+		if (camY < this->HORIZONTAL_PIXELS - halfHeight - scrollSpeed) {
+			camY += scrollSpeed;
 		}
 		else {
 			camY = this->HORIZONTAL_PIXELS - halfHeight;
