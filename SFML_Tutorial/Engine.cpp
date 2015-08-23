@@ -32,12 +32,7 @@ void Engine::mainLoop() {
 
 void Engine::initialize() {
 
-	sf::Vector2f cameraSize = sf::Vector2f(this->WINDOW_WIDTH, this->WINDOW_HEIGHT * 3 / 4);
-	sf::Vector2f cameraCenter = cameraSize * .5f;
-	sf::FloatRect graphicArea = sf::FloatRect(0, 0, 1, .75f);
-
-	this->window = new sf::RenderWindow(sf::VideoMode(this->WINDOW_WIDTH, this->WINDOW_HEIGHT), "Brandon Keeper");
-	this->camera = new sf::View();
+	this->window = new sf::RenderWindow(sf::VideoMode(this->windowWidth, this->windowHeight), "Brandon Keeper");
 	this->textureMap = new sf::Texture();
 	
 	this->tiles = std::vector<Tile*>();
@@ -47,12 +42,23 @@ void Engine::initialize() {
 
 	this->window->setVerticalSyncEnabled(true);	
 	this->window->setFramerateLimit(120);
+	this->textureMap->loadFromFile("globalTextureMap.png");
+
+	this->initializeCamera();
+	this->initializeMap();
+}
+
+void Engine::initializeCamera() {
+	
+	this->camera = new sf::View();
+	sf::Vector2f cameraSize = sf::Vector2f(this->windowWidth, this->windowHeight * 3 / 4);
+	sf::Vector2f cameraCenter = cameraSize * .5f;
+	sf::FloatRect graphicArea = sf::FloatRect(0, 0, 1, .68f);
+	
 	this->camera->setSize(cameraSize);
 	this->camera->setCenter(cameraCenter);
 	this->camera->setViewport(graphicArea);
-	this->textureMap->loadFromFile("globalTextureMap.png");
 
-	this->initializeMap();
 	this->lockMouse(true);
 }
 
@@ -64,7 +70,7 @@ void Engine::start() {
 
 void Engine::renderFrame() {
 
-	this->window->clear(sf::Color::Black);
+	this->window->clear();
 	this->window->setView(*camera);
 	this->drawMap();
 	this->window->display();
@@ -91,9 +97,27 @@ void Engine::processInput() {
 			}
 			case sf::Event::MouseButtonPressed: {
 
-				if (event.mouseButton.button == sf::Mouse::Left)
+				if (event.mouseButton.button == sf::Mouse::Left) {
 					this->focusedTile->toggleSelected();
+					this->isLeftMousePressed = true;
+					this->isTileSelected = this->focusedTile->getSelected();
+				}
+				break;
+			}
+			case sf::Event::MouseButtonReleased: {
+				
+				if (event.mouseButton.button == sf::Mouse::Left) {
+					this->isLeftMousePressed = false;
+					this->isTileSelected = NULL;
+			}
+				break;
+			}
+			case sf::Event::MouseMoved: {
 
+				if (this->isLeftMousePressed) {
+					if (this->focusedTile != NULL)
+						this->focusedTile->setSelected(this->isTileSelected);
+				}
 				break;
 			}
 			case sf::Event::MouseWheelScrolled: {
@@ -132,10 +156,10 @@ void Engine::processInput() {
 			}
 			case sf::Event::Resized: {
 
-				float x = event.size.width;
-				float y = event.size.height;
+				this->windowWidth = event.size.width;
+				this->windowHeight = event.size.height;
 
-				this->camera->setSize(x, y);
+				this->initializeCamera();
 				break;
 			}
 			case sf::Event::Closed: {
@@ -160,12 +184,8 @@ void Engine::update() {
 void Engine::updateCamera(int scrollSpeed) {
 
 	sf::Vector2i windowPosition = sf::Mouse::getPosition(*this->window);
-	sf::Vector2f globalPosition = this->window->mapPixelToCoords(windowPosition);
 	sf::Vector2f cameraCenter = this->camera->getCenter();
 	sf::Vector2f cameraBounds = this->camera->getSize();
-
-	int x = globalPosition.x;
-	int y = globalPosition.y;
 
 	int windowX = windowPosition.x;
 	int windowY = windowPosition.y;
@@ -190,7 +210,7 @@ void Engine::updateCamera(int scrollSpeed) {
 		}
 	}
 	//mouse is in right portion of the window
-	else if (windowX > this->WINDOW_WIDTH - this->SCROLL_ZONE_WIDTH) {
+	else if (windowX > this->windowWidth - this->SCROLL_ZONE_WIDTH) {
 
 		if (camX < this->HORIZONTAL_PIXELS - halfWidth - scrollSpeed) {
 			camX += scrollSpeed;
@@ -211,7 +231,7 @@ void Engine::updateCamera(int scrollSpeed) {
 		}
 	}
 	//mouse is in bottom portion of the window
-	else if (windowY > this->WINDOW_HEIGHT - this->SCROLL_ZONE_WIDTH) {
+	else if (windowY > this->windowHeight - this->SCROLL_ZONE_WIDTH) {
 
 		if (camY < this->HORIZONTAL_PIXELS - halfHeight - scrollSpeed) {
 			camY += scrollSpeed;

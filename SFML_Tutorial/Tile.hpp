@@ -3,29 +3,43 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-
 #include "AnimationHandler.hpp"
+
+enum TileType {
+
+	WHITE = 0,
+	BLUE = 1,
+	GREEN = 2,
+	RED = 3
+};
 
 class Tile {
 
 private:
 
+	static const unsigned char BASE_TYPE_INDEX = 0;
+	static const unsigned char HOVERED_TYPE_INDEX = 1;
+	static const unsigned char SELECTED_TYPE_INDEX = 2;
+	static const unsigned char HOVERED_SELECTED_TYPE_INDEX = 3;
+
 	sf::Texture* textureMap;
 	sf::Sprite* sprite;
 
-	unsigned char type;
-	unsigned char previousType;
+	unsigned char baseType;
+	unsigned char secondaryType;
 	unsigned char tileSize;
 	bool isHovered;
 	bool isSelected;
 
-	void setTexture(unsigned char type);
+	void setTexture();
 
 public:
 	
-	Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char type, unsigned char tileSize);
+	Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char baseType, unsigned char tileSize);
 	~Tile();
 	
+	bool getSelected();
+	void setSelected(bool isSelected);
 	void toggleHovered();
 	void toggleSelected();
 	

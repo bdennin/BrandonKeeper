@@ -10,8 +10,8 @@ class Engine {
 
 private:
 
-	static const int WINDOW_WIDTH = 1024;
-	static const int WINDOW_HEIGHT = 768;
+	int windowWidth = 1024;
+	int windowHeight = 768;
 
 	static const int MAP_SIZE = 64;
 	static const int TILE_SIZE = 48;
@@ -31,10 +31,13 @@ private:
 	int scrollSpeed;
 	int cameraScrolls;
 	bool isDebugging;
+	bool isLeftMousePressed;
+	bool isTileSelected;
 
 	void mainLoop();
 	void initialize();
 	void initializeMap();
+	void initializeCamera();
 	void update();
 	void updateCamera(int scrollSpeed);
 	void updateHover();
