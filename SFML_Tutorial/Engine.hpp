@@ -18,6 +18,8 @@ private:
 	
 	sf::RenderWindow* window;
 	sf::View* camera;
+	sf::View* miniMap;
+	sf::View* GUI;
 	sf::Texture* textureMap;
 	Tile* focusedTile;
 
@@ -42,6 +44,8 @@ private:
 	void updateSelection();
 	void renderFrame();
 	void drawMap();
+	void drawMiniMap();
+	void drawGUI();
 	void processInput();
 	
 	void lockMouse(bool isLocked);

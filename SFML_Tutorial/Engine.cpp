@@ -13,10 +13,12 @@ Engine::Engine(bool isDebugging, int windowWidth, int windowHeight) {
 }
 
 Engine::~Engine() {
-	
-	delete this->camera;
+
 	delete this->window;
 	delete this->textureMap;
+	delete this->camera;
+	delete this->miniMap;
+	delete this->GUI;
 
 	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
 		delete tiles[i];
@@ -37,6 +39,7 @@ void Engine::initialize() {
 
 	this->window = new sf::RenderWindow(sf::VideoMode(this->windowWidth, this->windowHeight), "Brandon Keeper");
 	this->textureMap = new sf::Texture();
+
 	
 	this->tiles = std::vector<Tile*>();
 	this->cameraScrolls = 0;
@@ -54,13 +57,37 @@ void Engine::initialize() {
 void Engine::initializeCamera() {
 	
 	this->camera = new sf::View();
-	sf::Vector2f cameraSize = sf::Vector2f(this->windowWidth, this->windowHeight * 3 / 4);
+	this->miniMap = new sf::View();
+	this->GUI = new sf::View();
+
+	sf::Vector2f cameraSize = sf::Vector2f(this->windowWidth, this->windowHeight * .7);
 	sf::Vector2f cameraCenter = cameraSize * .5f;
-	sf::FloatRect graphicArea = sf::FloatRect(0, 0, 1, .70f);
 	
+	sf::Vector2f mapSize = sf::Vector2f(this->HORIZONTAL_PIXELS, this->HORIZONTAL_PIXELS);
+	sf::Vector2f mapCenter = mapSize * .5f;
+	
+//	sf::Vector2f GUISize = sf::Vector2f(this->windowWidth * .7, this->windowHeight * .3);
+	//sf::Vector2f GUICenter = GUISize * .5f;
+	//GUICenter.x += mapSize.x;
+	//GUICenter.y += cameraSize.y;
+	
+	sf::FloatRect cameraArea = sf::FloatRect(0, 0, 1, .70f);
+	sf::FloatRect mapArea = sf::FloatRect(0, .7, .3, .3);
+	sf::FloatRect GUIArea = sf::FloatRect(.3f, .7f, .3f, .70f);
+
 	this->camera->setSize(cameraSize);
 	this->camera->setCenter(cameraCenter);
-	this->camera->setViewport(graphicArea);
+	this->camera->setViewport(cameraArea);
+
+	this->miniMap->setSize(mapSize);
+	this->miniMap->setCenter(mapCenter);
+	this->miniMap->setViewport(mapArea);
+
+	//this->GUI->setSize(GUISize);
+//	this->GUI->setCenter(GUICenter);
+//	this->GUI->setViewport(GUIArea);
+
+	//this->miniMap->zoom(0);
 
 	this->lockMouse(true);
 }
@@ -74,8 +101,8 @@ void Engine::start() {
 void Engine::renderFrame() {
 
 	this->window->clear();
-	this->window->setView(*camera);
 	this->drawMap();
+	this->drawMiniMap();
 	this->window->display();
 }
 
@@ -112,7 +139,7 @@ void Engine::processInput() {
 				if (event.mouseButton.button == sf::Mouse::Left) {
 					this->isLeftMousePressed = false;
 					this->isTileSelected = NULL;
-			}
+				}
 				break;
 			}
 			case sf::Event::MouseWheelScrolled: {
@@ -331,7 +358,9 @@ void Engine::initializeMap() {
 }
 
 void Engine::drawMap() {
-	
+
+	this->window->setView(*camera);
+
 	sf::Vector2i firstPosition(0, 0);
 	sf::Vector2i currentPosition = sf::Mouse::getPosition();
 	
@@ -364,4 +393,15 @@ void Engine::drawMap() {
 	}
 
 	sf::Mouse::setPosition(currentPosition);
+}
+
+void Engine::drawMiniMap() {
+
+	this->window->setView(*miniMap);
+	
+	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
+		this->window->draw(tiles[i]->getSprite());
+	}
+
+	this->window->setView(*camera);
 }
