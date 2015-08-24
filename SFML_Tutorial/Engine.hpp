@@ -10,14 +10,10 @@ class Engine {
 
 private:
 
-	int windowWidth = 1024;
-	int windowHeight = 768;
-
 	static const int MAP_SIZE = 64;
 	static const int TILE_SIZE = 48;
 	static const int TOTAL_TITLES = MAP_SIZE * MAP_SIZE;
 	static const int HORIZONTAL_PIXELS = TILE_SIZE * MAP_SIZE;
-
 	static const int SCROLL_ZONE_WIDTH = TILE_SIZE / 2;
 	
 	sf::RenderWindow* window;
@@ -28,6 +24,8 @@ private:
 	std::vector<Tile*> tiles;
 	std::ofstream log;
 
+	int windowWidth;
+	int windowHeight;
 	int scrollSpeed;
 	int cameraScrolls;
 	bool isDebugging;
@@ -42,14 +40,15 @@ private:
 	void updateCamera(int scrollSpeed);
 	void updateHover();
 	void updateSelection();
-	void lockMouse(bool isLocked);
 	void renderFrame();
 	void drawMap();
 	void processInput();
+	
+	void lockMouse(bool isLocked);
 
 public:
 
-	Engine(bool isDebugging);
+	Engine(bool isDebugging, int windowWidth = 1024, int windowHeight = 768);
 	~Engine();
 	void start();
 };

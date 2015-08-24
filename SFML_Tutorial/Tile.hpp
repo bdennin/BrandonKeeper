@@ -13,19 +13,24 @@ enum TileType {
 	RED = 3
 };
 
+enum SecondaryType {
+
+	BASE = 0,
+	HOVERED = 1,
+	SELECTED = 2,
+	HOVERED_AND_SELECTED = 3,
+};
+
 class Tile {
 
 private:
 
-	static const unsigned char BASE_TYPE_INDEX = 0;
-	static const unsigned char HOVERED_TYPE_INDEX = 1;
-	static const unsigned char SELECTED_TYPE_INDEX = 2;
-	static const unsigned char HOVERED_SELECTED_TYPE_INDEX = 3;
-
 	sf::Texture* textureMap;
 	sf::Sprite* sprite;
-
-	TileType baseType;
+	
+	sf::Vector2f position;
+	
+	unsigned char baseType;
 	unsigned char secondaryType;
 	unsigned char tileSize;
 	bool isHovered;
@@ -35,7 +40,7 @@ private:
 
 public:
 	
-	Tile(sf::Texture* textureMap, sf::Vector2f& position, TileType baseType, unsigned char tileSize);
+	Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char baseType, unsigned char tileSize);
 	~Tile();
 	
 	bool getSelected();
@@ -43,6 +48,7 @@ public:
 	void toggleHovered();
 	void toggleSelected();
 	
+	sf::Vector2f& getPosition();
 	sf::Sprite& getSprite();
 };
 

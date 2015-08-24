@@ -3,10 +3,13 @@
 #include "Engine.hpp"
 #include "windows.h"
 
-Engine::Engine(bool isDebugging) {
+Engine::Engine(bool isDebugging, int windowWidth, int windowHeight) {
 
 	if (isDebugging)
 		this->log.open("log.txt");
+
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
 }
 
 Engine::~Engine() {
@@ -53,7 +56,7 @@ void Engine::initializeCamera() {
 	this->camera = new sf::View();
 	sf::Vector2f cameraSize = sf::Vector2f(this->windowWidth, this->windowHeight * 3 / 4);
 	sf::Vector2f cameraCenter = cameraSize * .5f;
-	sf::FloatRect graphicArea = sf::FloatRect(0, 0, 1, .68f);
+	sf::FloatRect graphicArea = sf::FloatRect(0, 0, 1, .70f);
 	
 	this->camera->setSize(cameraSize);
 	this->camera->setCenter(cameraCenter);
@@ -116,11 +119,11 @@ void Engine::processInput() {
 				
 				if (event.mouseWheelScroll.delta < 0 && this->cameraScrolls > 0) {
 					
-					--(this->cameraScrolls);
+					--this->cameraScrolls;
 					this->camera->zoom(1.25f);
 				}
 				else if (event.mouseWheelScroll.delta > 0 && this->cameraScrolls < 4) {
-					++(this->cameraScrolls);
+					++this->cameraScrolls;
 					this->camera->zoom(.8f);
 				}
 
@@ -140,10 +143,12 @@ void Engine::processInput() {
 			}
 			case sf::Event::GainedFocus: {
 				this->lockMouse(true);
+
 				break;
 			}
 			case sf::Event::LostFocus: {
 				this->lockMouse(false);
+
 				break;
 			}
 			case sf::Event::Resized: {
@@ -152,12 +157,14 @@ void Engine::processInput() {
 				this->windowHeight = event.size.height;
 
 				this->initializeCamera();
+
 				break;
 			}
 			case sf::Event::Closed: {
 
 				this->lockMouse(false);
 				this->window->close();
+
 				break;
 			}
 
@@ -280,7 +287,7 @@ void Engine::updateHover() {
 }
 
 void Engine::updateSelection() {
-	if (this->isLeftMousePressed)
+	if (this->isLeftMousePressed && this->focusedTile != NULL)
 		this->focusedTile->setSelected(this->isTileSelected);
 }
 
@@ -324,8 +331,37 @@ void Engine::initializeMap() {
 }
 
 void Engine::drawMap() {
+	
+	sf::Vector2i firstPosition(0, 0);
+	sf::Vector2i currentPosition = sf::Mouse::getPosition();
+	
+	sf::Mouse::setPosition(firstPosition, *this->window);
+	
+	sf::Vector2i windowPosition = sf::Mouse::getPosition(*this->window);
+	sf::Vector2f globalPosition = this->window->mapPixelToCoords(windowPosition);
+	sf::Vector2f cameraBounds = this->camera->getSize();
 
-	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
-		this->window->draw(tiles[i]->getSprite());
+	int x = globalPosition.x;
+	int y = globalPosition.y;
+
+	int maxX = x + cameraBounds.x + this->TILE_SIZE;
+	int maxY = y + cameraBounds.y + this->TILE_SIZE;
+
+	for (unsigned int i = y; i <= maxY; i += this->TILE_SIZE) {
+		for (unsigned int j = x; j <= maxX; j += this->TILE_SIZE) {
+			
+			int tileX = j / this->TILE_SIZE;
+			int tileY = i / this->TILE_SIZE;
+			int tileIndex = MAP_SIZE * tileY + tileX;
+
+			if (tileX >= this->MAP_SIZE || tileY >= this->MAP_SIZE) {
+
+			}
+			else {
+				this->window->draw(tiles[tileIndex]->getSprite());
+			}
+		}
 	}
+
+	sf::Mouse::setPosition(currentPosition);
 }

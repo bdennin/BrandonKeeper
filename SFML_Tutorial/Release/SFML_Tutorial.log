@@ -1,17 +1,24 @@
-﻿Build started 8/23/2015 6:37:46 PM.
+﻿Build started 8/23/2015 9:36:13 PM.
      1>Project "C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\SFML_Tutorial\SFML_Tutorial\SFML_Tutorial.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Jimbob\Documents\Visual Studio 2013\SFML-2.3.1\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Engine.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Jimbob\Documents\Visual Studio 2013\SFML-2.3.1\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Engine.cpp Main.cpp
          Engine.cpp
-     1>Engine.cpp(54): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(186): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(187): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(189): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(190): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(236): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(246): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(247): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(322): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(57): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(193): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(194): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(196): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(197): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(243): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(253): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(254): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(329): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(344): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(345): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(347): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(348): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(350): warning C4018: '<=' : signed/unsigned mismatch
+     1>Engine.cpp(351): warning C4018: '<=' : signed/unsigned mismatch
+         Main.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\SFML_Tutorial\Release\SFML_Tutorial.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Users\Jimbob\Documents\Visual Studio 2013\SFML-2.3.1\lib" User32.lib "sfml-graphics.lib" "sfml-audio.lib" "sfml-main.lib" "sfml-system.lib" "sfml-window.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\SFML_Tutorial\Release\SFML_Tutorial.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\SFML_Tutorial\Release\SFML_Tutorial.lib" /MACHINE:X86 /SAFESEH Release\AnimationHandler.obj
          Release\Engine.obj
@@ -25,4 +32,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.03
+Time Elapsed 00:00:01.35

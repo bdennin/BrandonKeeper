@@ -2,14 +2,14 @@
 #include "AnimationHandler.hpp"
 #include "Tile.hpp"
 
-Tile::Tile(sf::Texture* textureMap, sf::Vector2f& position, TileType baseType, unsigned char tileSize) {
+Tile::Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char baseType, unsigned char tileSize) {
 
 	this->textureMap = textureMap;
 	this->tileSize = tileSize;
-	
 	this->baseType = baseType;
-	this->secondaryType = this->BASE_TYPE_INDEX;
+	this->position = position;
 
+	this->secondaryType = SecondaryType::BASE;
 	this->isHovered = false;
 	this->isSelected = false;
 
@@ -27,7 +27,7 @@ Tile::~Tile() {
 
 void Tile::setTexture() {
 
-	//Sprite are kept in a two-dimensional array; secondaryType is the column, baseType is the row
+	//Sprites are kept in a two-dimensional array; secondaryType is the column, baseType is the row
 	sf::IntRect spriteDimensions = sf::IntRect(this->secondaryType * tileSize, this->baseType * tileSize, tileSize, tileSize);
 	
 	this->sprite->setTextureRect(spriteDimensions);
@@ -54,11 +54,11 @@ bool Tile::getSelected() {
 void Tile::setSelected(bool isSelected) {
 	
 	if (isSelected) {
-		this->secondaryType = this->HOVERED_SELECTED_TYPE_INDEX;
+		this->secondaryType = SecondaryType::HOVERED_AND_SELECTED;
 		this->isSelected = true;
 	}
 	else {
-		this->secondaryType = this->HOVERED_TYPE_INDEX;
+		this->secondaryType = SecondaryType::HOVERED;
 		this->isSelected = false;
 	}
 
@@ -72,3 +72,8 @@ void Tile::toggleSelected() {
 sf::Sprite& Tile::getSprite() {
 	return *this->sprite;
 }
+
+sf::Vector2f& Tile::getPosition() {
+	return this->position;
+}
+
