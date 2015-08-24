@@ -41,6 +41,7 @@ private:
 	void update();
 	void updateCamera(int scrollSpeed);
 	void updateHover();
+	void updateSelection();
 	void lockMouse(bool isLocked);
 	void renderFrame();
 	void drawMap();

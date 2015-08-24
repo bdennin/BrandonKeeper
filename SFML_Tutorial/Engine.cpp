@@ -37,7 +37,7 @@ void Engine::initialize() {
 	
 	this->tiles = std::vector<Tile*>();
 	this->cameraScrolls = 0;
-	this->focusedTile = nullptr;
+	this->focusedTile = NULL;
 	this->scrollSpeed = this->SCROLL_ZONE_WIDTH;
 
 	this->window->setVerticalSyncEnabled(true);	
@@ -112,14 +112,6 @@ void Engine::processInput() {
 			}
 				break;
 			}
-			case sf::Event::MouseMoved: {
-
-				if (this->isLeftMousePressed) {
-					if (this->focusedTile != NULL)
-						this->focusedTile->setSelected(this->isTileSelected);
-				}
-				break;
-			}
 			case sf::Event::MouseWheelScrolled: {
 				
 				if (event.mouseWheelScroll.delta < 0 && this->cameraScrolls > 0) {
@@ -179,6 +171,7 @@ void Engine::update() {
 
 	this->updateCamera(this->scrollSpeed);
 	this->updateHover();
+	this->updateSelection();
 }
 
 void Engine::updateCamera(int scrollSpeed) {
@@ -248,6 +241,8 @@ void Engine::updateHover() {
 	sf::Vector2i windowPosition = sf::Mouse::getPosition(*this->window);
 	sf::Vector2f globalPosition = this->window->mapPixelToCoords(windowPosition);
 
+	int winY = windowPosition.y;
+
 	int x = globalPosition.x;
 	int y = globalPosition.y;
 
@@ -257,29 +252,36 @@ void Engine::updateHover() {
 
 	Tile* focusedTile = this->tiles[tileIndex];
 
-	if (tileIndex < this->TOTAL_TITLES && tileIndex >= 0) {
+	if (winY < this->windowHeight * .68) {
+		if (tileIndex < this->TOTAL_TITLES && tileIndex >= 0) {
 
-		if (nullptr == this->focusedTile) {
-			this->focusedTile = focusedTile;
-			this->focusedTile->toggleHovered();
+			if (NULL == this->focusedTile) {
+				this->focusedTile = focusedTile;
+				this->focusedTile->toggleHovered();
+			}
+			else if (this->focusedTile != focusedTile) {
+				this->focusedTile->toggleHovered();
+				this->focusedTile = focusedTile;
+				this->focusedTile->toggleHovered();
+			}
+			//else do nothing because focusedTile is already the focus
 		}
-		else if (this->focusedTile != focusedTile) {
-			this->focusedTile->toggleHovered();
-			this->focusedTile = focusedTile;
-			this->focusedTile->toggleHovered();
-		}
-		//else do nothing because focusedTile is already the focus
-	}
-	//mouse is not on a tile
-	else
-		if (nullptr == this->focusedTile) {
-
-		}
+		//mouse is not on a tile
 		else {
-			this->focusedTile->toggleHovered();
-			this->focusedTile = nullptr;
+			if (NULL == this->focusedTile) {
+
+			}
+			else {
+				this->focusedTile->toggleHovered();
+				this->focusedTile = NULL;
+			}
 		}
-		
+	}
+}
+
+void Engine::updateSelection() {
+	if (this->isLeftMousePressed)
+		this->focusedTile->setSelected(this->isTileSelected);
 }
 
 void Engine::lockMouse(bool isLocked) {
@@ -308,14 +310,14 @@ void Engine::initializeMap() {
 
 	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
 
-		int type;
+		TileType type;
 		int x = i % MAP_SIZE * TILE_SIZE;
 		int y = i / MAP_SIZE * TILE_SIZE;
 
 		if (x == 0 || y == 0 || x ==  HORIZONTAL_PIXELS - TILE_SIZE || y == HORIZONTAL_PIXELS - TILE_SIZE)
-			type = 0;
+			type = TileType::WHITE;
 		else
-			type = 1;
+			type = TileType::BLUE;
 
 		this->tiles.push_back(new Tile(textureMap, sf::Vector2f(x, y), type, TILE_SIZE));
 	}

@@ -25,7 +25,7 @@ private:
 	sf::Texture* textureMap;
 	sf::Sprite* sprite;
 
-	unsigned char baseType;
+	TileType baseType;
 	unsigned char secondaryType;
 	unsigned char tileSize;
 	bool isHovered;
@@ -35,7 +35,7 @@ private:
 
 public:
 	
-	Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char baseType, unsigned char tileSize);
+	Tile(sf::Texture* textureMap, sf::Vector2f& position, TileType baseType, unsigned char tileSize);
 	~Tile();
 	
 	bool getSelected();

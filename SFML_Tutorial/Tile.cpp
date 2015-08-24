@@ -2,7 +2,7 @@
 #include "AnimationHandler.hpp"
 #include "Tile.hpp"
 
-Tile::Tile(sf::Texture* textureMap, sf::Vector2f& position, unsigned char baseType, unsigned char tileSize) {
+Tile::Tile(sf::Texture* textureMap, sf::Vector2f& position, TileType baseType, unsigned char tileSize) {
 
 	this->textureMap = textureMap;
 	this->tileSize = tileSize;
