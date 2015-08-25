@@ -286,7 +286,7 @@ void Engine::updateHover() {
 
 	Tile* focusedTile = this->tiles[tileIndex];
 
-	if (winY < this->windowHeight * .68) {
+	if (winY < this->windowHeight * .7) {
 		if (tileIndex < this->TOTAL_TITLES && tileIndex >= 0) {
 
 			if (NULL == this->focusedTile) {
@@ -300,6 +300,7 @@ void Engine::updateHover() {
 			}
 			//else do nothing because focusedTile is already the focus
 		}
+	}
 		//mouse is not on a tile
 		else {
 			if (NULL == this->focusedTile) {
@@ -310,7 +311,7 @@ void Engine::updateHover() {
 				this->focusedTile = NULL;
 			}
 		}
-	}
+	
 }
 
 void Engine::updateSelection() {
