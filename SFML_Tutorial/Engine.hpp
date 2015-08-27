@@ -26,8 +26,8 @@ private:
 	std::vector<Tile*> tiles;
 	std::ofstream log;
 
-	int windowWidth;
-	int windowHeight;
+	float windowWidth;
+	float windowHeight;
 	int scrollSpeed;
 	int cameraScrolls;
 	bool isDebugging;
@@ -52,7 +52,7 @@ private:
 
 public:
 
-	Engine(bool isDebugging, int windowWidth = 1024, int windowHeight = 768);
+	Engine(bool isDebugging, float windowWidth = 1024, float windowHeight = 768);
 	~Engine();
 	void start();
 };

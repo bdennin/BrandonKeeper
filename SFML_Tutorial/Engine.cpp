@@ -3,7 +3,7 @@
 #include "Engine.hpp"
 #include "windows.h"
 
-Engine::Engine(bool isDebugging, int windowWidth, int windowHeight) {
+Engine::Engine(bool isDebugging, float windowWidth, float windowHeight) {
 
 	if (isDebugging)
 		this->log.open("log.txt");
@@ -37,10 +37,9 @@ void Engine::mainLoop() {
 
 void Engine::initialize() {
 
-	this->window = new sf::RenderWindow(sf::VideoMode(this->windowWidth, this->windowHeight), "Brandon Keeper");
+	this->window = new sf::RenderWindow(sf::VideoMode((unsigned int)this->windowWidth, (unsigned int)this->windowHeight), "Brandon Keeper");
 	this->textureMap = new sf::Texture();
 
-	
 	this->tiles = std::vector<Tile*>();
 	this->cameraScrolls = 0;
 	this->focusedTile = NULL;
@@ -66,14 +65,12 @@ void Engine::initializeCamera() {
 	sf::Vector2f mapSize = sf::Vector2f(this->HORIZONTAL_PIXELS, this->HORIZONTAL_PIXELS);
 	sf::Vector2f mapCenter = mapSize * .5f;
 	
-//	sf::Vector2f GUISize = sf::Vector2f(this->windowWidth * .7, this->windowHeight * .3);
-	//sf::Vector2f GUICenter = GUISize * .5f;
-	//GUICenter.x += mapSize.x;
-	//GUICenter.y += cameraSize.y;
+	sf::Vector2f GUISize = sf::Vector2f(this->windowWidth * .7, this->windowHeight * .3);
+	sf::Vector2f GUICenter = GUISize * .5f;
 	
 	sf::FloatRect cameraArea = sf::FloatRect(0, 0, 1, .70f);
-	sf::FloatRect mapArea = sf::FloatRect(0, .7, .3, .3);
-	sf::FloatRect GUIArea = sf::FloatRect(.3f, .7f, .3f, .70f);
+	sf::FloatRect mapArea = sf::FloatRect(.025, .725, .25, .25);
+	sf::FloatRect GUIArea = sf::FloatRect(0, .7f, .3f, 1);
 
 	this->camera->setSize(cameraSize);
 	this->camera->setCenter(cameraCenter);
@@ -83,11 +80,9 @@ void Engine::initializeCamera() {
 	this->miniMap->setCenter(mapCenter);
 	this->miniMap->setViewport(mapArea);
 
-	//this->GUI->setSize(GUISize);
-//	this->GUI->setCenter(GUICenter);
-//	this->GUI->setViewport(GUIArea);
-
-	//this->miniMap->zoom(0);
+	this->GUI->setSize(GUISize);
+	this->GUI->setCenter(GUICenter);
+	this->GUI->setViewport(GUIArea);
 
 	this->lockMouse(true);
 }
@@ -100,7 +95,7 @@ void Engine::start() {
 
 void Engine::renderFrame() {
 
-	this->window->clear();
+	//this->window->clear();
 	this->drawMap();
 	this->drawMiniMap();
 	this->window->display();
@@ -127,7 +122,7 @@ void Engine::processInput() {
 			}
 			case sf::Event::MouseButtonPressed: {
 
-				if (event.mouseButton.button == sf::Mouse::Left) {
+				if (event.mouseButton.button == sf::Mouse::Left && this->focusedTile != NULL) {
 					this->focusedTile->toggleSelected();
 					this->isLeftMousePressed = true;
 					this->isTileSelected = this->focusedTile->getSelected();
@@ -220,11 +215,11 @@ void Engine::updateCamera(int scrollSpeed) {
 	int camX = cameraCenter.x;
 	int camY = cameraCenter.y;
 
-	int camWidth = cameraBounds.x;
-	int camHeight = cameraBounds.y;
+	float camWidth = cameraBounds.x;
+	float camHeight = cameraBounds.y;
 
-	int halfWidth = camWidth / 2;
-	int halfHeight = camHeight / 2;
+	int halfWidth = camWidth / 2 + .5f;
+	int halfHeight = camHeight / 2 + .5f;
 
 	//mouse is in left portion of the window
 	if (windowX < this->SCROLL_ZONE_WIDTH) {
@@ -243,7 +238,7 @@ void Engine::updateCamera(int scrollSpeed) {
 			camX += scrollSpeed;
 		}
 		else {
-			camX = this->HORIZONTAL_PIXELS - halfWidth;
+			camX = this->HORIZONTAL_PIXELS - halfWidth ;
 		}
 	}	
 	
@@ -315,8 +310,9 @@ void Engine::updateHover() {
 }
 
 void Engine::updateSelection() {
-	if (this->isLeftMousePressed && this->focusedTile != NULL)
+	if (this->isLeftMousePressed && this->focusedTile != NULL) {
 		this->focusedTile->setSelected(this->isTileSelected);
+	}
 }
 
 void Engine::lockMouse(bool isLocked) {
@@ -356,6 +352,14 @@ void Engine::initializeMap() {
 
 		this->tiles.push_back(new Tile(textureMap, sf::Vector2f(x, y), type, TILE_SIZE));
 	}
+
+	this->window->setView(*miniMap);
+
+	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
+		this->window->draw(tiles[i]->getSprite());
+	}
+
+	this->window->setView(*camera);
 }
 
 void Engine::drawMap() {
@@ -377,8 +381,8 @@ void Engine::drawMap() {
 	int maxX = x + cameraBounds.x + this->TILE_SIZE;
 	int maxY = y + cameraBounds.y + this->TILE_SIZE;
 
-	for (unsigned int i = y; i <= maxY; i += this->TILE_SIZE) {
-		for (unsigned int j = x; j <= maxX; j += this->TILE_SIZE) {
+	for (int i = y; i <= maxY; i += this->TILE_SIZE) {
+		for (int j = x; j <= maxX; j += this->TILE_SIZE) {
 			
 			int tileX = j / this->TILE_SIZE;
 			int tileY = i / this->TILE_SIZE;
@@ -398,8 +402,13 @@ void Engine::drawMap() {
 
 void Engine::drawMiniMap() {
 
+//	if (this->focusedTile != NULL) {
+//		this->window->setView(*miniMap);
+//		this->window->draw(focusedTile->getSprite());
+//		this->window->setView(*camera);
+//	}
 	this->window->setView(*miniMap);
-	
+
 	for (unsigned int i = 0; i < this->TOTAL_TITLES; i++) {
 		this->window->draw(tiles[i]->getSprite());
 	}
