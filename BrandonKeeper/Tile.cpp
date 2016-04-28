@@ -1,38 +1,41 @@
 #include "Tile.h"
 #include "SoundHandler.h"
 
-const Clock Tile::TEXTURE_CLOCK = Clock();
+Clock Tile::textureClock;
 
-Tile::Tile(Texture* textureMap, Vector2f* position, TileType tileType, int ID, int tileSize, int mapTileSize)
+Tile::Tile(Texture* textures, Vector2f* position, TileType tileType, int ID, int tileSize, int mapTileSize)
 {
 	Vector2f mapPosition;
 	mapPosition.x = (*position).x / tileSize * mapTileSize;
 	mapPosition.y = (*position).y / tileSize * mapTileSize;
 
-	this->textureMap = textureMap;
+	this->textures = textures;
 	this->position = position;
 	this->tileSize = tileSize;
 	this->mapTileSize = mapTileSize;
 	this->ID = ID;
 
-	this->initializeTileType(tileType);
-	this->selectedType = SelectedType::NATURAL_A;
-	this->mapSelectedType = SelectedType::MAP_A;
+	this->type = tileType;
+	this->selectedType = SelectedType::INVISIBLE;
+	this->mapSelectedType = SelectedType::MAP_INVISIBLE_A;
 	this->isHovered = false;
 	this->isSelected = false;
+	this->isVisible = false;
 	this->isReachable = false;
 	this->isBeingExtracted = false;
+	this->isOccupied = false;
+	this->hasDropOff = false;
+	this->isTreasuryType = false;
 
 	this->sprite = new Sprite();
-	this->sprite->setTexture(*this->textureMap);
+	this->sprite->setTexture(*this->textures);
 	this->sprite->setPosition(*this->position);
 
 	this->mapSprite = new Sprite();
-	this->mapSprite->setTexture(*this->textureMap);
+	this->mapSprite->setTexture(*this->textures);
 	this->mapSprite->setPosition(mapPosition);
 
-	this->updateSprite();
-	this->updateMapSprite();
+	this->initializeTileType(tileType);
 }
 
 Tile::~Tile()
@@ -48,13 +51,13 @@ void Tile::initializeTileType(TileType tileType)
 	{
 		case ROCK:
 		{
-			this->tileType = TileType::ROCK;
-			this->buildCost = 0;
+			this->type = TileType::ROCK;
+			this->cost = 0;
 			this->health = numeric_limits<int>::max();
 			this->extractableGold = 0;
 			this->storeableGold = 0;
 			this->storedGold = 0;
-			this->tileName = "Impenetrable Rock";
+			this->tileName = "Rock";
 
 			this->isSelectable = false;
 			this->isVisible = true;
@@ -68,8 +71,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case EARTH:
 		{
-			this->tileType = TileType::EARTH;
-			this->buildCost = 0;
+			this->type = TileType::EARTH;
+			this->cost = 0;
 			this->health = 300;
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -77,7 +80,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Earth";
 
 			this->isSelectable = true;
-			this->isVisible = true;
 			this->isNatural = true;
 			this->isTraversable = false;
 			this->isMineable = true;
@@ -88,8 +90,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case GOLD:
 		{
-			this->tileType = TileType::GOLD;
-			this->buildCost = 0;
+			this->type = TileType::GOLD;
+			this->cost = 0;
 			this->health = 1200;
 			this->extractableGold = 1200;
 			this->storeableGold = 0;
@@ -108,8 +110,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case GEM:
 		{
-			this->tileType = TileType::GEM;
-			this->buildCost = 0;
+			this->type = TileType::GEM;
+			this->cost = 0;
 			this->health = numeric_limits<int>::max();
 			this->extractableGold = numeric_limits<int>::max();
 			this->storeableGold = 0;
@@ -128,8 +130,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case DIRT:
 		{
-			this->tileType = TileType::DIRT;
-			this->buildCost = 0;
+			this->type = TileType::DIRT;
+			this->cost = 0;
 			this->health = numeric_limits<int>::max();
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -137,7 +139,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Dirt";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = true;
 			this->isTraversable = true;
 			this->isMineable = false;
@@ -148,28 +149,28 @@ void Tile::initializeTileType(TileType tileType)
 
 		case TREASURY:
 		{
-			this->tileType = TileType::TREASURY;
-			this->buildCost = 50;
+			this->type = TileType::TREASURY;
+			this->cost = 50;
 			this->health = 100;
 			this->extractableGold = 0;
-			this->storeableGold = 500;
+			this->storeableGold = Tile::TREASURY_MAX_GOLD;
 			this->storedGold = 0;
 			this->tileName = "Treasury";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = false;
 			this->isTraversable = true;
 			this->isMineable = false;
 			this->hasExtractableGold = false;
+			this->isTreasuryType = true;
 
 			break;
 		}
 
 		case LAIR:
 		{
-			this->tileType = TileType::LAIR;
-			this->buildCost = 100;
+			this->type = TileType::LAIR;
+			this->cost = 100;
 			this->health = 200;
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -177,7 +178,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Lair";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = false;
 			this->isTraversable = true;
 			this->isMineable = false;
@@ -188,8 +188,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case HATCHERY:
 		{
-			this->tileType = TileType::HATCHERY;
-			this->buildCost = 100;
+			this->type = TileType::HATCHERY;
+			this->cost = 100;
 			this->health = 200;
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -197,7 +197,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Hatchery";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = false;
 			this->isTraversable = true;
 			this->isMineable = false;
@@ -208,8 +207,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case TRAINING_ROOM:
 		{
-			this->tileType = TileType::TRAINING_ROOM;
-			this->buildCost = 150;
+			this->type = TileType::TRAINING_ROOM;
+			this->cost = 150;
 			this->health = 300;
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -217,7 +216,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Training Room";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = false;
 			this->isTraversable = true;
 			this->isMineable = false;
@@ -228,8 +226,8 @@ void Tile::initializeTileType(TileType tileType)
 
 		case LIBRARY:
 		{
-			this->tileType = TileType::LIBRARY;
-			this->buildCost = 200;
+			this->type = TileType::LIBRARY;
+			this->cost = 200;
 			this->health = 400;
 			this->extractableGold = 0;
 			this->storeableGold = 0;
@@ -237,7 +235,6 @@ void Tile::initializeTileType(TileType tileType)
 			this->tileName = "Library";
 
 			this->isSelectable = false;
-			this->isVisible = true;
 			this->isNatural = false;
 			this->isTraversable = true;
 			this->isMineable = false;
@@ -255,131 +252,314 @@ void Tile::initializeTileType(TileType tileType)
 
 void Tile::setTextureByClock()
 {
-	int current = Tile::TEXTURE_CLOCK.getElapsedTime().asMilliseconds();
-	current %= 1024;
+	int current = Tile::textureClock.getElapsedTime().asMilliseconds();
 
-	if (current > 850)
+	if (current > 600)
+		Tile::textureClock.restart();
+
+	if (current > 500)
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_F;
-			else
-				this->selectedType = SelectedType::SELECTED_F;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_F;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_F;
 
-			this->mapSelectedType = MAP_F;
+				this->mapSelectedType = MAP_F;
+			}
+			else
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_F;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_F;
-			else
-				this->selectedType = SelectedType::NATURAL_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_F;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_F;
 
-			this->mapSelectedType = MAP_A;
+				this->mapSelectedType = MAP_INVISIBLE_F;
+			}
+			else
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_F;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
 	}
-	else if (current > 680)
+	else if (current > 400)
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_E;
-			else
-				this->selectedType = SelectedType::SELECTED_E;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_E;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_E;
 
-			this->mapSelectedType = MAP_E;
+				this->mapSelectedType = MAP_E;
+			}
+			else
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_E;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_E;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_E;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_E;
+				
+				this->mapSelectedType = MAP_INVISIBLE_E;
+			}
 			else
-				this->selectedType = SelectedType::NATURAL_A;
-
-			this->mapSelectedType = MAP_A;
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_E;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+				
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
 	}
-	else if (current > 510)
+	else if (current > 300)
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_D;
-			else
-				this->selectedType = SelectedType::SELECTED_D;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_D;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_D;
 
-			this->mapSelectedType = MAP_D;
+				this->mapSelectedType = MAP_D;
+			}
+			else
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_D;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_D;
-			else
-				this->selectedType = SelectedType::NATURAL_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_D;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_D;
 
-			this->mapSelectedType = MAP_A;
+				this->mapSelectedType = MAP_INVISIBLE_D;
+			}
+			else
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_D;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
 	}
-	else if (current > 340)
+	else if (current > 200)
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_C;
-			else
-				this->selectedType = SelectedType::SELECTED_C;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_C;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_C;
 
-			this->mapSelectedType = MAP_C;
+				this->mapSelectedType = MAP_C;
+			}
+			else
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_C;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_C;
-			else
-				this->selectedType = SelectedType::NATURAL_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_C;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_C;
 
-			this->mapSelectedType = MAP_A;
+				this->mapSelectedType = MAP_INVISIBLE_C;
+			}
+			else
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_C;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
 	}
-	else if (current > 170)
+	else if (current > 100)
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_B;
-			else
-				this->selectedType = SelectedType::SELECTED_B;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_B;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_B;
 
-			this->mapSelectedType = MAP_B;
+				this->mapSelectedType = MAP_B;
+			}
+			else
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_B;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_B;
-			else
-				this->selectedType = SelectedType::NATURAL_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_B;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_B;
 
-			this->mapSelectedType = MAP_A;
+				this->mapSelectedType = MAP_INVISIBLE_B;
+			}
+			else
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_B;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
 	}
 	else
 	{
-		if (this->isSelected)
+		if (this->isVisible)
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_AND_SELECTED_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_AND_SELECTED_A;
+				else
+					this->selectedType = SelectedType::VISIBLE_AND_SELECTED_A;
+
+				this->mapSelectedType = MAP_A;
+			}
 			else
-				this->selectedType = SelectedType::SELECTED_A;
+			{
+				if (this->isHovered)
+				{
+					this->selectedType = SelectedType::VISIBLE_AND_HOVERED_A;
+				}
+				else
+				{
+					this->selectedType = SelectedType::VISIBLE;
+				}
+
+				this->mapSelectedType = MAP_A;
+			}
 		}
 		else
 		{
-			if (this->isHovered)
-				this->selectedType = SelectedType::HOVERED_A;
+			if (this->isSelected)
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_AND_SELECTED_A;
+				else
+					this->selectedType = SelectedType::INVISIBLE_AND_SELECTED_A;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 			else
-				this->selectedType = SelectedType::NATURAL_A;
+			{
+				if (this->isHovered)
+					this->selectedType = SelectedType::INVISIBLE_AND_HOVERED_A;
+				else
+					this->selectedType = SelectedType::INVISIBLE;
+
+				this->mapSelectedType = MAP_INVISIBLE_A;
+			}
 		}
-		this->mapSelectedType = MAP_A;
+	}
+
+	if (this->isTreasuryType)
+	{
+		if (this->storedGold > Tile::TREASURY_MAX_GOLD / 2)
+			this->type = TileType::TREASURY_FULL;
+		else if (this->storedGold > 0)
+			this->type = TileType::TREASURY_MID;
+		else
+			this->type = TileType::TREASURY;
 	}
 
 	this->updateSprite();
@@ -388,13 +568,13 @@ void Tile::setTextureByClock()
 
 void Tile::updateSprite()
 {
-	IntRect spriteDimensions = IntRect(selectedType * tileSize, tileType * tileSize, tileSize, tileSize);
+	IntRect spriteDimensions = IntRect(selectedType * tileSize, type * tileSize, tileSize, tileSize);
 	this->sprite->setTextureRect(spriteDimensions);
 }
 
 void Tile::updateMapSprite()
 {
-	IntRect spriteDimensions = IntRect(mapSelectedType * tileSize + 1, tileType * tileSize + 1, mapTileSize, mapTileSize);
+	IntRect spriteDimensions = IntRect(mapSelectedType * tileSize + 1, type * tileSize + 1, mapTileSize, mapTileSize);
 	this->mapSprite->setTextureRect(spriteDimensions);
 }
 
@@ -429,7 +609,7 @@ bool Tile::getSelected()
 
 void Tile::setSelected(bool isSelected)
 {
-	if (this->isSelectable)
+	if (this->isSelectable || !this->isVisible)
 	{
 		if (this->isSelected == isSelected)
 		{
@@ -441,9 +621,6 @@ void Tile::setSelected(bool isSelected)
 			this->setTextureByClock();
 
 			SoundHandler::playSound("tile_select");
-
-			this->updateSprite();
-			this->updateMapSprite();
 		}
 	}
 }
@@ -456,6 +633,16 @@ void Tile::toggleSelected()
 bool Tile::getSelectable()
 {
 	return this->isSelectable;
+}
+
+bool Tile::getVisible()
+{
+	return this->isVisible;
+}
+
+void Tile::setVisible(bool isVisible)
+{
+	this->isVisible = isVisible;
 }
 
 bool Tile::getReachable()
@@ -473,6 +660,11 @@ bool Tile::getTraversable()
 	return this->isTraversable;
 }
 
+bool Tile::getMineable()
+{
+	return this->isMineable;
+}
+
 int Tile::getHealth()
 {
 	return this->health;
@@ -481,6 +673,16 @@ int Tile::getHealth()
 void Tile::setHealth(int health)
 {
 	this->health = health;
+}
+
+bool Tile::getOccupied()
+{
+	return this->isOccupied;
+}
+
+void Tile::setOccupied(bool isOccupied)
+{
+	this->isOccupied = isOccupied;
 }
 
 void Tile::setBeingExtracted(bool isBeingExtracted)
@@ -505,14 +707,14 @@ void Tile::setExtractableGold(int gold)
 
 void Tile::extract(bool playSound)
 {
-	this->isSelected = false;
-
 	if (playSound)
 	{
 		int random = rand() % 3 + 1;
 		string name = "tile_cave-in_" + to_string(random);
 		SoundHandler::playCriticalSound(name);
 	}
+
+	this->isSelected = false;
 
 	this->setType(TileType::DIRT);
 	this->setTextureByClock();
@@ -528,24 +730,73 @@ void Tile::setStoredGold(int gold)
 	this->storedGold = gold;
 }
 
-bool Tile::isFull()
+int Tile::getStoreableGold()
 {
-	return this->storedGold >= this->storeableGold;
+	return Tile::TREASURY_MAX_GOLD - this->storedGold;
 }
 
-bool Tile::hasGold()
+void Tile::addGold(int gold)
+{
+	this->storedGold += gold;
+}
+
+void Tile::removeGold(int gold)
+{
+	this->storedGold -= gold;
+}
+
+bool Tile::hasMaxGold()
+{
+	return this->storedGold >= Tile::TREASURY_MAX_GOLD;
+}
+
+bool Tile::containsGold()
 {
 	return this->hasExtractableGold;
 }
 
+bool Tile::getDropOff()
+{
+	return this->hasDropOff;
+}
+
+void Tile::setDropOff(bool hasDropOff)
+{
+	this->hasDropOff = hasDropOff;
+}
+
+void Tile::reinit()
+{
+	this->selectedType = SelectedType::INVISIBLE;
+	this->mapSelectedType = SelectedType::MAP_INVISIBLE_A;
+
+	this->isSelected = false;
+	this->isVisible = false;
+	this->isReachable = false;
+	this->isBeingExtracted = false;
+	this->isOccupied = false;
+	this->hasDropOff = false;
+	this->isTreasuryType = false;
+}
+
 TileType Tile::getType()
 {
-	return this->tileType;
+	return this->type;
 }
 
 void Tile::setType(TileType type)
 {
 	this->initializeTileType(type);
+}
+
+SelectedType Tile::getSelectedType()
+{
+	return this->selectedType;
+}
+
+SelectedType Tile::getMapSelectedType()
+{
+	return this->mapSelectedType;
 }
 
 int Tile::getID()
@@ -561,36 +812,30 @@ int Tile::sell()
 	}
 	else
 	{
-		int gold = this->buildCost / 2;
+		int gold = this->cost / 2;
 		SoundHandler::playSound("tile_sell");
 
-		this->initializeTileType(TileType::DIRT);
+		this->setType(TileType::DIRT);
 		this->setTextureByClock();
 		return gold;
 	}
 }
 
+Vector2f* Tile::getPosition()
+{
+	return this->position;
+}
+
 Sprite* Tile::getSprite()
 {
-	if (this->isSelected || this->isHovered)
-	{
-		this->setTextureByClock();
-	}
+	this->setTextureByClock();
 
 	return this->sprite;
 }
 
 Sprite* Tile::getMapSprite()
 {
-	if (this->isSelected)
-	{
-		this->setTextureByClock();
-	}
+	this->setTextureByClock();
 
 	return this->mapSprite;
-}
-
-Vector2f* Tile::getPosition()
-{
-	return this->position;
 }

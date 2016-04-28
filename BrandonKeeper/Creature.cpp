@@ -29,6 +29,8 @@ void Creature::levelUp()
 
 void Creature::moveWest()
 {
+	this->spriteType = SpriteType::WEST;
+
 	this->position->x -= this->moveSpeed;
 	this->sprite->setPosition(*this->position);
 
@@ -36,10 +38,14 @@ void Creature::moveWest()
 	mapPosition.x = (*position).x / creatureSize * creatureMapSize;
 	mapPosition.y = (*position).y / creatureSize * creatureMapSize;
 	this->mapSprite->setPosition(mapPosition);
+	
+	this->updateSprite();
 }
 
 void Creature::moveNorth()
 {
+	this->spriteType = SpriteType::SOUTH;
+
 	this->position->y += this->moveSpeed;
 	this->sprite->setPosition(*this->position);
 
@@ -47,10 +53,14 @@ void Creature::moveNorth()
 	mapPosition.x = (*position).x / creatureSize * creatureMapSize;
 	mapPosition.y = (*position).y / creatureSize * creatureMapSize;
 	this->mapSprite->setPosition(mapPosition);
+	
+	this->updateSprite();
 }
 
 void Creature::moveEast()
 {
+	this->spriteType = SpriteType::EAST;
+
 	this->position->x += this->moveSpeed;
 	this->sprite->setPosition(*this->position);
 
@@ -58,10 +68,14 @@ void Creature::moveEast()
 	mapPosition.x = (*position).x / creatureSize * creatureMapSize;
 	mapPosition.y = (*position).y / creatureSize * creatureMapSize;
 	this->mapSprite->setPosition(mapPosition);
+	
+	this->updateSprite();
 }
 
 void Creature::moveSouth()
 {
+	this->spriteType = SpriteType::NORTH;
+
 	this->position->y -= this->moveSpeed;
 	this->sprite->setPosition(*this->position);
 
@@ -69,6 +83,36 @@ void Creature::moveSouth()
 	mapPosition.x = (*position).x / creatureSize * creatureMapSize;
 	mapPosition.y = (*position).y / creatureSize * creatureMapSize;
 	this->mapSprite->setPosition(mapPosition);
+
+	this->updateSprite();
+}
+
+void Creature::faceWest()
+{
+	this->spriteType = SpriteType::WEST;
+
+	this->updateSprite();
+}
+
+void Creature::faceNorth()
+{
+	this->spriteType = SpriteType::NORTH;
+
+	this->updateSprite();
+}
+
+void Creature::faceEast()
+{
+	this->spriteType = SpriteType::EAST;
+
+	this->updateSprite();
+}
+
+void Creature::faceSouth()
+{
+	this->spriteType = SpriteType::SOUTH;
+
+	this->updateSprite();
 }
 
 void Creature::updateSprite()
@@ -123,11 +167,15 @@ void Creature::cancelJob()
 		case JobType::MINE_TARGET:
 		{
 			this->job->target->setBeingExtracted(false);
+			this->job->destination->setOccupied(false);
+			
 			break;
 		}
 
 		case JobType::UNLOAD_GOLD:
 		{
+			this->job->destination->setDropOff(false);
+		
 			break;
 		}
 

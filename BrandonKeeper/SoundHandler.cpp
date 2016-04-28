@@ -1,5 +1,11 @@
 #include "SoundHandler.h"
 
+Clock* SoundHandler::criticalTimer;
+Clock* SoundHandler::messageTimer;
+Clock* SoundHandler::soundTimer;
+Clock* SoundHandler::spellTimer;
+Clock* SoundHandler::urgentTimer;
+
 map<string, Music*> SoundHandler::musicMap;
 map<string, SoundBuffer*> SoundHandler::soundMap;
 
@@ -8,20 +14,25 @@ vector<string> SoundHandler::sounds;
 
 Music* SoundHandler::music;
 Sound* SoundHandler::criticalSound;
+Sound* SoundHandler::genericSound;
 Sound* SoundHandler::message;
 Sound* SoundHandler::spellSound;
-vector<Sound*> SoundHandler::sound;
-
-int SoundHandler::soundCounter = 0;
+Sound* SoundHandler::urgentSound;
 
 void SoundHandler::initializeSounds()
 {
+	criticalTimer = new Clock();
+	messageTimer = new Clock();
+	soundTimer = new Clock();
+	spellTimer = new Clock();
+	urgentTimer = new Clock();
+	
 	criticalSound = new Sound();
+	genericSound = new Sound();
 	message = new Sound();
 	spellSound = new Sound();
+	urgentSound = new Sound();
 
-	for (int i = 0; i < MAX_SIMULTANEOUS_SOUNDS; i++)
-		sound.push_back(new Sound());
 
 	SoundBuffer* buffer;
 	Music* music;
@@ -51,9 +62,10 @@ void SoundHandler::initializeSounds()
 	sounds.push_back("tile_select");
 	sounds.push_back("tile_sell");
 	sounds.push_back("voice_bigger_treasury");
+	sounds.push_back("voice_game_saved");
 	sounds.push_back("voice_game_loaded");
+	sounds.push_back("voice_need_treasury");
 	sounds.push_back("voice_tunneled_new_area");
-
 
 	int length = sounds.size();
 
@@ -102,16 +114,23 @@ void SoundHandler::destroySounds()
 		delete music;
 	}
 
-	for (int i = 0; i < MAX_SIMULTANEOUS_SOUNDS; i++)
-		delete sound[i];
+	delete criticalTimer;
+	delete messageTimer;
+	delete soundTimer;
+	delete spellTimer;
+	delete urgentTimer;
 
 	delete criticalSound;
+	delete genericSound;
 	delete message;
 	delete spellSound;
+	delete urgentSound;
 }
 
 void SoundHandler::startGameMusic()
 {
+	srand(time(NULL));
+
 	int offset;
 	int random = rand() % 4;
 
@@ -156,38 +175,74 @@ void SoundHandler::startMenuMusic()
 
 void SoundHandler::playCriticalSound(string name)
 {
-	criticalSound->setBuffer(*soundMap[name]);
-	criticalSound->play();
+	int milli = criticalTimer->getElapsedTime().asMilliseconds();
+
+	if (milli > SoundHandler::CRITICAL_SOUND_COOLDOWN)
+	{
+		criticalSound->setBuffer(*soundMap[name]);
+		criticalSound->play();
+
+		criticalTimer->restart();
+	}
 }
 
 void SoundHandler::playMessage(string name)
 {
-	message->setBuffer(*soundMap[name]);
-	message->play();
+	int milli = messageTimer->getElapsedTime().asMilliseconds();
+
+	if (milli > SoundHandler::MESSAGE_SOUND_COOLDOWN)
+	{
+		message->setBuffer(*soundMap[name]);
+		message->play();
+
+		messageTimer->restart();
+	}
 }
 
 void SoundHandler::playSound(string name)
 {
-	int i = soundCounter;
-	sound[i]->setBuffer(*soundMap[name]);
-	sound[i]->play();
+	int milli = soundTimer->getElapsedTime().asMilliseconds();
 
-	soundCounter++;
-
-	if (soundCounter >= MAX_SIMULTANEOUS_SOUNDS)
-		soundCounter = 0;
+	if (milli > SoundHandler::GENERIC_SOUND_COOLDOWN)
+	{
+		genericSound->setBuffer(*soundMap[name]);
+		genericSound->play();
+		
+		soundTimer->restart();
+	}
 }
 
 void SoundHandler::playSpellSound(string name)
 {
-	spellSound->setBuffer(*soundMap[name]);
-	spellSound->play();
+	int milli = spellTimer->getElapsedTime().asMilliseconds();
+
+	if (milli > SoundHandler::SPELL_SOUND_COOLDOWN)
+	{
+		spellSound->setBuffer(*soundMap[name]);
+		spellSound->play();
+
+		spellTimer->restart();
+	}
+}
+
+void SoundHandler::playUrgentSound(string name)
+{
+	int milli = urgentTimer->getElapsedTime().asMilliseconds();
+
+	if (milli > SoundHandler::URGENT_SOUND_COOLDOWN)
+	{
+		urgentSound->setBuffer(*soundMap[name]);
+		urgentSound->play();
+
+		urgentTimer->restart();
+	}
 }
 
 void SoundHandler::setVolume(float volume)
 {
 	music->setVolume(volume);
-
-	for (int i = 0; i < SoundHandler::MAX_SIMULTANEOUS_SOUNDS; i++)
-		sound[i]->setVolume(volume);
+	criticalSound->setVolume(volume);
+	genericSound->setVolume(volume);
+	message->setVolume(volume);
+	spellSound->setVolume(volume);
 }

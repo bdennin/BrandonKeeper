@@ -1,82 +1,104 @@
-﻿Build started 2/16/2016 2:08:55 AM.
-     1>Project "C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\BrandonKeeper\BrandonKeeper.vcxproj" on node 2 (Build target(s)).
+﻿Build started 4/27/2016 10:55:30 PM.
+     1>Project "C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\BrandonKeeper\BrandonKeeper.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Creature.cpp Imp.cpp JobHandler.cpp Main.cpp SoundHandler.cpp Tile.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Creature.cpp Engine.cpp Grid.cpp Imp.cpp JobHandler.cpp Main.cpp SoundHandler.cpp Tile.cpp
          Creature.cpp
      1>Creature.cpp(22): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
      1>Creature.cpp(23): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
      1>Creature.cpp(24): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
      1>Creature.cpp(25): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
      1>Creature.cpp(26): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>Creature.cpp(185): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Creature.cpp(186): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Creature.cpp(233): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Creature.cpp(234): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+         Engine.cpp
+     1>Engine.cpp(161): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(165): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
+     1>Engine.cpp(188): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(220): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>Engine.cpp(228): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
+     1>Engine.cpp(229): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
+     1>Engine.cpp(308): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(309): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(310): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(311): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(342): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(343): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(344): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(345): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(357): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
+     1>Engine.cpp(368): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(369): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(371): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(372): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(379): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(380): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(392): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(404): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(405): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(407): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(408): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(415): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(416): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(425): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(588): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(589): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(594): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(595): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(647): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(669): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(670): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(672): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(673): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(689): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(708): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(715): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(716): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(861): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(862): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(863): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(864): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+     1>Engine.cpp(873): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(874): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(892): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(943): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(944): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(946): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(947): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(1167): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(1168): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(1196): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(1197): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Engine.cpp(1232): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(1251): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>Engine.cpp(1252): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>Engine.cpp(1270): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>Engine.cpp(1271): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+         Grid.cpp
+     1>Grid.cpp(85): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Grid.cpp(86): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Grid.cpp(87): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Grid.cpp(88): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
          Imp.cpp
-     1>Imp.cpp(90): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Imp.cpp(91): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(84): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(85): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(104): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(105): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(134): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(135): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(199): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>Imp.cpp(200): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
          JobHandler.cpp
-     1>JobHandler.cpp(113): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>JobHandler.cpp(114): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>JobHandler.cpp(117): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>JobHandler.cpp(118): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>JobHandler.cpp(168): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>JobHandler.cpp(169): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
          Main.cpp
          SoundHandler.cpp
-     1>SoundHandler.cpp(147): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>SoundHandler.cpp(132): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>SoundHandler.cpp(166): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
          Tile.cpp
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\include" /Zi /nologo /W3 /WX- /sdl /Ox /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Engine.cpp
-         Engine.cpp
-     1>Engine.cpp(154): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(158): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
-     1>Engine.cpp(181): warning C4244: 'argument' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(213): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>Engine.cpp(221): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
-     1>Engine.cpp(222): warning C4244: '=' : conversion from 'const int' to 'float', possible loss of data
-     1>Engine.cpp(303): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(304): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(305): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(306): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(337): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(338): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(339): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(340): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(352): warning C4244: 'argument' : conversion from 'const int' to 'float', possible loss of data
-     1>Engine.cpp(363): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(364): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(366): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(367): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(374): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(375): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(387): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(399): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(400): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(402): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(403): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(410): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(411): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(420): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(572): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(573): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(578): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(579): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(631): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(653): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(654): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(656): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(657): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(673): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(692): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(699): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(700): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(845): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(846): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(847): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(848): warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-     1>Engine.cpp(857): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(858): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(876): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>Engine.cpp(923): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(924): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(926): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>Engine.cpp(927): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.exe" /NOLOGO /LIBPATH:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\lib" "sfml-audio.lib" "sfml-graphics.lib" "sfml-system.lib" "sfml-window.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.lib" /MACHINE:X86 /SAFESEH Release\Creature.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.exe" /NOLOGO /LIBPATH:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\lib" "sfml-graphics.lib" "sfml-window.lib" "sfml-system.lib" "sfml-audio.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.lib" /MACHINE:X86 /SAFESEH Release\Creature.obj
          Release\Engine.obj
          Release\Grid.obj
          Release\Imp.obj
@@ -87,8 +109,8 @@
          Generating code
          Finished generating code
          BrandonKeeper.vcxproj -> C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\Release\BrandonKeeper.exe
-     1>Done Building Project "C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\BrandonKeeper\BrandonKeeper.vcxproj" (Build target(s)).
+     1>Done Building Project "C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\BrandonKeeper\BrandonKeeper.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:04.31
+Time Elapsed 00:00:04.88

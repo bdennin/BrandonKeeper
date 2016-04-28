@@ -2,13 +2,14 @@
 
 typedef map<int, Tile*>::iterator map_iterator;
 
-JobHandler::JobHandler(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, vector<Imp*>* workers, Grid* pathfinder, int xDelta, int yDelta, bool isDebugging)
+JobHandler::JobHandler(vector<Tile*>* tiles, vector<Tile*>* treasuryTiles, map<int, Tile*>* selectedTiles, vector<Imp*>* workers, Grid* pathfinder, int xDelta, int yDelta, bool isDebugging)
 {
-	this->reachableJobs = new list<Job*>();
+	this->reachableJobs = new unordered_set<Job*>();
 	this->pathThread = new Thread(&JobHandler::findJobs, this);
 	this->timer = new Clock();
 
 	this->tiles = tiles;
+	this->treasuryTiles = treasuryTiles;
 	this->selectedTiles = selectedTiles;
 	this->workers = workers;
 	this->pathfinder = pathfinder;
@@ -17,7 +18,7 @@ JobHandler::JobHandler(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, vec
 	this->printCeiling = 31;
 	this->xDelta = xDelta;
 	this->yDelta = yDelta;
-	this->isFinding = true;
+	this->isPaused = false;
 	this->isDebugging = isDebugging;
 
 	this->maxTiles = tiles->size();
@@ -27,6 +28,7 @@ JobHandler::~JobHandler()
 {
 	this->pathThread->terminate();
 
+	delete timer;
 	delete reachableJobs;
 	delete pathThread;
 }
@@ -37,7 +39,7 @@ void JobHandler::findJobs()
 	{
 		Sleep(JobHandler::FIND_SLEEP_TIME);
 
-		if (this->isFinding)
+		if (!isPaused)
 		{
 			if (isDebugging)
 				timer->restart();
@@ -62,29 +64,31 @@ void JobHandler::addExtractionJobs()
 {
 	for (map_iterator it = selectedTiles->begin(); it != selectedTiles->end(); it++)
 	{
-		if (!it->second->getBeingExtracted())
+		if (it->second->getMineable() && !it->second->getBeingExtracted())
 		{
 			vector<int> neighbors;
 			int ID = it->first;
 			Tile* neighbor;
 
 			neighbors.push_back(ID - xDelta);
-			neighbors.push_back(ID + yDelta);
 			neighbors.push_back(ID + xDelta);
 			neighbors.push_back(ID - yDelta);
+			neighbors.push_back(ID + yDelta);
 
-			for (int i:neighbors)
+			for (int i : neighbors)
 			{
 				if (i >= 0 && i < maxTiles)
 				{
 					neighbor = (*tiles)[i];
 
-					if (neighbor->getReachable())
+					if (neighbor->getReachable() && !neighbor->getOccupied())
 					{
 						Job* job = new Job(neighbor, it->second, JobType::MINE_TARGET);
-						it->second->setBeingExtracted(true);
 
-						this->reachableJobs->push_back(job);
+						it->second->setBeingExtracted(true);
+						neighbor->setOccupied(true);
+
+						this->reachableJobs->insert(job);
 					}
 				}
 			}
@@ -125,7 +129,7 @@ void JobHandler::assignExtractionJobs()
 			if (work != nullptr)
 			{
 				imp->setJob(work);
-				this->reachableJobs->remove(work);
+				this->reachableJobs->erase(work);
 			}
 		}
 	}
@@ -133,16 +137,63 @@ void JobHandler::assignExtractionJobs()
 
 void JobHandler::assignUnloadJobs()
 {
-	int length = this->workers->size();
-	Imp* imp;
-
-	for (int i = 0; i < length; i++)
+	if (this->treasuryTiles->empty())
 	{
-		imp = (*workers)[i];
+		SoundHandler::playMessage("voice_need_treasury");
+	}
+	else
+	{
+		int length = this->workers->size();
+		Imp* imp;
 
-		if (imp->isIdle() && imp->hasMaxGold())
+		for (int i = 0; i < length; i++)
 		{
+			imp = (*workers)[i];
+			Job* job = nullptr;
 
+			if (imp->isIdle() && imp->getGold() > 0)
+			{
+				int maxGoldDrop = Tile::TREASURY_MAX_GOLD;
+				int distance = numeric_limits<int>::max();
+				Tile* dropOff = nullptr;
+
+
+				for (Tile* tile : *this->treasuryTiles)
+				{
+					if (!tile->getDropOff())
+					{
+						Vector2f* impPosition = imp->getPosition();
+						Vector2f* tilePosition = tile->getPosition();
+
+						int x = (tilePosition->x - impPosition->x);
+						int y = (tilePosition->y - impPosition->y);
+
+						int difference = x * x + y * y;
+
+						if (tile->getStoredGold() < maxGoldDrop && difference < distance)
+						{
+							maxGoldDrop = tile->getStoredGold();
+							dropOff = tile;
+							distance = difference;
+						}
+					}
+				}
+
+				if (dropOff == nullptr)
+				{
+					SoundHandler::playMessage("voice_bigger_treasury");
+				}
+				else
+				{
+					job = new Job(dropOff, nullptr, JobType::UNLOAD_GOLD);
+				}
+			}
+
+			if (job != nullptr)
+			{
+				job->destination->setDropOff(true);
+				imp->setJob(job);
+			}
 		}
 	}
 }
@@ -150,4 +201,14 @@ void JobHandler::assignUnloadJobs()
 void JobHandler::start()
 {
 	this->pathThread->launch();
+}
+
+void JobHandler::pause()
+{
+	this->isPaused = true;
+}
+
+void JobHandler::unpause()
+{
+	this->isPaused = false;
 }

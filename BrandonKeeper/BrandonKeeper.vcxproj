@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9A0DAD69-62BD-45B0-9E64-3787E77E6649}</ProjectGuid>
+    <ProjectGuid>{F03FE900-D6DC-41FE-ABD0-2130636CB764}</ProjectGuid>
     <RootNamespace>BrandonKeeper</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -49,7 +49,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-audio-s-d.lib;sfml-graphics-s-d.lib;sfml-system-s-d.lib;sfml-window-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -60,29 +60,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\Users\Jimbob\Documents\Visual Studio 2013\Projects\BrandonKeeper\SFML-2.3.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-audio.lib;sfml-graphics.lib;sfml-system.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Creature.cpp" />
-    <ClCompile Include="Engine.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
-    </ClCompile>
-    <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="Imp.cpp" />
-    <ClCompile Include="JobHandler.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="SoundHandler.cpp" />
-    <ClCompile Include="Tile.cpp" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Creature.h" />
     <ClInclude Include="Engine.h" />
@@ -95,7 +81,18 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\background.png" />
+    <Image Include="Resources\creatureTextures.png" />
     <Image Include="Resources\tileTextures.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Creature.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="Imp.cpp" />
+    <ClCompile Include="JobHandler.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SoundHandler.cpp" />
+    <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

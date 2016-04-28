@@ -7,11 +7,13 @@ Imp::Imp(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, unordered_set<Til
 	this->tiles = tiles;
 	this->selectedTiles = selectedTiles;
 	this->changedTiles = changedTiles;
+	this->workers = workers;
 	this->pathfinder = pathfinder;
 	this->textureMap = textureMap;
 	this->position = position;
 	this->moveTimer = new Clock();
 	this->mineTimer = new Clock();
+	this->renegotiateTimer = new Clock();
 	this->stepTimer = new Clock();
 	this->jobTimer = new Clock();
 	this->sprite = new Sprite();
@@ -20,7 +22,7 @@ Imp::Imp(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, unordered_set<Til
 
 	//member structures
 	this->creatureType = CreatureType::IMP;
-	this->spriteType = SpriteType::NATURAL;
+	this->spriteType = SpriteType::SOUTH;
 	this->mapSpriteType = SpriteType::MAP;
 	this->status = Status::IDLE;
 
@@ -63,19 +65,61 @@ Imp::Imp(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, unordered_set<Til
 
 Imp::~Imp()
 {
+	delete jobTimer;
 	delete moveTimer;
 	delete mineTimer;
-	delete jobTimer;
+	delete renegotiateTimer;
+	delete stepTimer;
+
 	delete position;
 	delete sprite;
 	delete mapSprite;
 }
 
-void Imp::giveJob(Imp* imp)
+void Imp::renegotiate()
 {
-	imp->setJob(this->job);
+	Vector2f* impPosition = this->getPosition();
+	Vector2f* tilePosition = this->job->destination->getPosition();
 
-	this->status = Status::IDLE;
+	int x = tilePosition->x - impPosition->x;
+	int y = tilePosition->y - impPosition->y;
+	int distance = x * x + y * y;
+
+	if (distance > 25000)
+	{
+		int length = this->workers->size();
+		
+		Imp* imp = nullptr;
+
+		for (int i = 0; i < length; i++)
+		{
+			Imp* current = (*this->workers)[i];
+			
+			if (current->isIdle() && !current->hasMaxGold())
+			{
+				int currentDistance;
+
+				impPosition = current->getPosition();
+
+				x = tilePosition->x - impPosition->x;
+				y = tilePosition->y - impPosition->y;
+
+				currentDistance = x * x + y * y;
+
+				if (currentDistance < distance)
+				{
+					imp = current;
+					distance = currentDistance;
+				}
+			}
+		}
+
+		if (imp != nullptr)
+		{
+			imp->setJob(this->job);
+			this->status = Status::IDLE;
+		}
+	}
 }
 
 void Imp::move()
@@ -105,11 +149,7 @@ void Imp::move()
 			{
 				int milli = this->stepTimer->getElapsedTime().asMilliseconds();
 
-				if (milli < Imp::STEP_COOLDOWN)
-				{
-
-				}
-				else
+				if (milli > Imp::STEP_COOLDOWN)
 				{
 					int random = rand() % 4 + 1;
 					string name = "imp_step_" + to_string(random);
@@ -134,11 +174,7 @@ void Imp::move()
 			{
 				int milli = this->stepTimer->getElapsedTime().asMilliseconds();
 
-				if (milli < Imp::STEP_COOLDOWN)
-				{
-
-				}
-				else
+				if (milli > Imp::STEP_COOLDOWN)
 				{
 					int random = rand() % 4 + 1;
 					string name = "imp_step_" + to_string(random);
@@ -151,9 +187,32 @@ void Imp::move()
 		else
 		{
 			if (target == this->job->destination)
+			{
 				this->job->destinationReached = true;
+
+				if (this->job->type == JobType::MINE_TARGET)
+				{
+					Tile* target = this->job->target;
+					Vector2f* moveTarget = target->getPosition();
+					Vector2f* position = this->getPosition();
+
+					int dx = moveTarget->x - position->x;
+					int dy = moveTarget->y - position->y;
+
+					if (dx > 0)
+						this->faceEast();
+					else if (dx < 0)
+						this->faceWest();
+					else if (dy > 0)
+						this->faceSouth();
+					else
+						this->faceNorth();
+				}
+			}
 			else
+			{
 				this->currentPath.pop();
+			}
 		}
 	}
 }
@@ -174,27 +233,30 @@ void Imp::step(bool hasSound)
 				}
 				else if (!this->job->destinationReached)
 				{
-					int milli = this->moveTimer->getElapsedTime().asMilliseconds();
+					int milli = this->renegotiateTimer->getElapsedTime().asMilliseconds();
 
-					if (milli < Imp::MOVE_COOLDOWN)
+					if (milli > Imp::RENEGOTIATE_COOLDOWN)
 					{
-						//do nothing
+						this->renegotiate();
+						this->renegotiateTimer->restart();
 					}
-					else
+
+					if (this->hasJob())
 					{
-						this->move();
-						this->moveTimer->restart();
+						milli = this->moveTimer->getElapsedTime().asMilliseconds();
+
+						if (milli > Imp::MOVE_COOLDOWN)
+						{
+							this->move();
+							this->moveTimer->restart();
+						}
 					}
 				}
 				else if (!this->job->targetMined)
 				{
 					int milli = this->mineTimer->getElapsedTime().asMilliseconds();
 
-					if (milli < Imp::MINE_COOLDOWN)
-					{
-						//do nothing
-					}
-					else
+					if (milli > Imp::MINE_COOLDOWN)
 					{
 						this->mine(job->target);
 						this->mineTimer->restart();
@@ -208,7 +270,58 @@ void Imp::step(bool hasSound)
 
 			case UNLOAD_GOLD:
 			{
+				if (job->destination->hasMaxGold())
+				{
+					this->cancelJob();
+				}
+				else if (!this->job->destinationReached)
+				{
+					int milli = this->renegotiateTimer->getElapsedTime().asMilliseconds();
+
+					if (milli > Imp::RENEGOTIATE_COOLDOWN)
+					{
+						this->renegotiate();
+						this->renegotiateTimer->restart();
+					}
+
+					if (this->hasJob())
+					{
+						milli = this->moveTimer->getElapsedTime().asMilliseconds();
+
+						if (milli > Imp::MOVE_COOLDOWN)
+						{
+							this->move();
+							this->moveTimer->restart();
+						}
+					}
+				}
+				else
+				{
+					if (this->hasSound)
+					{
+						int random = rand() % 3 + 1;
+						string name = "gold_drop_" + to_string(random);
+						SoundHandler::playCriticalSound(name);
+					}
+
+					this->job->goldDropped = true;
+
+					Tile* destination = this->job->destination;
+
+					int depositableGold = destination->getStoreableGold();
+
+					if (currentGold < depositableGold)
+						depositableGold = currentGold;
+
+					this->currentGold -= depositableGold;
+
+					destination->addGold(depositableGold);
+
+					this->completeJob();
+				}
+
 				break;
+
 			}
 
 			case MOVE_ORDER:
@@ -233,7 +346,7 @@ void Imp::mine(Tile* target)
 		SoundHandler::playSound(name);
 	}
 
-	if (target->hasGold())
+	if (target->containsGold())
 	{
 		int tileGold = target->getExtractableGold();
 		int extractedGold;
@@ -250,10 +363,10 @@ void Imp::mine(Tile* target)
 		netGold = tileGold - extractedGold;
 		target->setExtractableGold(netGold);
 
+		this->currentGold += extractedGold;
+
 		if (netGold <= 0)
 			mined = true;
-
-		this->currentGold += extractedGold;
 	}
 	else
 	{
@@ -273,11 +386,13 @@ void Imp::mine(Tile* target)
 			mined = true;
 	}
 
+
 	if (mined)
 	{
 		target->extract(this->hasSound);
 
 		this->job->targetMined = true;
+
 		this->selectedTiles->erase(target->getID());
 		this->changedTiles->insert(target);
 

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BrandonKeeper", "BrandonKeeper\BrandonKeeper.vcxproj", "{9A0DAD69-62BD-45B0-9E64-3787E77E6649}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BrandonKeeper", "BrandonKeeper\BrandonKeeper.vcxproj", "{F03FE900-D6DC-41FE-ABD0-2130636CB764}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9A0DAD69-62BD-45B0-9E64-3787E77E6649}.Debug|Win32.ActiveCfg = Debug|Win32
-		{9A0DAD69-62BD-45B0-9E64-3787E77E6649}.Debug|Win32.Build.0 = Debug|Win32
-		{9A0DAD69-62BD-45B0-9E64-3787E77E6649}.Release|Win32.ActiveCfg = Release|Win32
-		{9A0DAD69-62BD-45B0-9E64-3787E77E6649}.Release|Win32.Build.0 = Release|Win32
+		{F03FE900-D6DC-41FE-ABD0-2130636CB764}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F03FE900-D6DC-41FE-ABD0-2130636CB764}.Debug|Win32.Build.0 = Debug|Win32
+		{F03FE900-D6DC-41FE-ABD0-2130636CB764}.Release|Win32.ActiveCfg = Release|Win32
+		{F03FE900-D6DC-41FE-ABD0-2130636CB764}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

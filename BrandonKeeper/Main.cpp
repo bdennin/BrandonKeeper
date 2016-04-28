@@ -2,5 +2,5 @@
 
 int main()
 {
-	Engine engine = Engine(true);
+	Engine engine;
 }

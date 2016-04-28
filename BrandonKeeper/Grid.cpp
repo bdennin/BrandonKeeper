@@ -4,9 +4,11 @@ typedef map<int, Node*>::iterator node_iterator;
 
 Clock* Grid::timer = new Clock();
 
-Grid::Grid(vector<Tile*>* tiles, int xDelta, int yDelta, bool isDebugging)
+Grid::Grid(vector<Tile*>* tiles, vector<Tile*>* treasuryTiles, unordered_set<Tile*>* changedTiles, int xDelta, int yDelta, bool isDebugging)
 {
 	this->tiles = tiles;
+	this->treasuryTiles = treasuryTiles;
+	this->changedTiles = changedTiles;
 	this->grid = map<int, Node*>();
 	this->pathfinder = new 	priority_queue<pqItem, vector<pqItem>, greater<pqItem>>();
 
@@ -18,7 +20,6 @@ Grid::Grid(vector<Tile*>* tiles, int xDelta, int yDelta, bool isDebugging)
 
 Grid::~Grid()
 {
-	delete timer;
 	delete pathfinder;
 
 	for (node_iterator it = grid.begin(); it != grid.end(); it++)
@@ -28,6 +29,11 @@ Grid::~Grid()
 			delete it->second;
 		}
 	}
+}
+
+void Grid::clear()
+{
+	this->grid.clear();
 }
 
 void Grid::clearSolution()
@@ -161,7 +167,16 @@ void Grid::addNode(Tile* tile)
 
 		this->resolveAdjacency(node);
 
+		this->changedTiles->insert(tile);
+
+		tile->setSelected(false);
+		tile->setVisible(true);
 		tile->setReachable(true);
+
+		if (tile->getType() == TileType::TREASURY)
+		{
+			this->treasuryTiles->push_back(tile);
+		}
 	}
 }
 
@@ -204,7 +219,7 @@ bool Grid::discover(Tile* seed)
 			if (tile->getTraversable() && !node->isAdded)
 			{
 				this->addNode(tile);
-
+				
 				if (tile->getID() != seed->getID())
 					outcome = true;
 
@@ -221,6 +236,12 @@ bool Grid::discover(Tile* seed)
 
 				current = this->getEast(node);
 				nodesToBeAdded.push(current);
+			}
+			else
+			{
+				this->changedTiles->insert(tile);
+
+				tile->setVisible(true);
 			}
 		}
 	}

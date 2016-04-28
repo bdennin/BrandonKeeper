@@ -9,7 +9,6 @@
 #include "windows.h"
 
 #include <thread>
-#include <list>
 #include <stack>
 #include <iostream>
 
@@ -21,14 +20,15 @@ class JobHandler
 
 private:
 
-	static const int FIND_SLEEP_TIME = 10;
+	static const int FIND_SLEEP_TIME = 50;
 
-	list<Job*>* reachableJobs;
+	unordered_set<Job*>* reachableJobs;
 	Thread* pathThread;
 	Clock* timer;
 	
 	Grid* pathfinder;
 	vector<Tile*>* tiles;
+	vector<Tile*>* treasuryTiles;
 	map<int, Tile*>* selectedTiles;
 	vector<Imp*>* workers;
 
@@ -37,20 +37,21 @@ private:
 	int maxTiles;
 	int findCounter;
 	int printCeiling;
-	bool isFinding;
+	bool isPaused;
 	bool isDebugging;
 
 	void findJobs();
 	void addExtractionJobs();
 	void assignExtractionJobs();
 	void assignUnloadJobs();
-	
 
 public:
 
 	void start();
+	void pause();
+	void unpause();
 
-	JobHandler(vector<Tile*>* tiles, map<int, Tile*>* selectedTiles, vector<Imp*>* workers, Grid* pathfinder, int xDelta, int yDelta, bool isDebugging);
+	JobHandler(vector<Tile*>* tiles, vector<Tile*>* treasuryTiles, map<int, Tile*>* selectedTiles, vector<Imp*>* workers, Grid* pathfinder, int xDelta, int yDelta, bool isDebugging);
 	~JobHandler();
 };
 

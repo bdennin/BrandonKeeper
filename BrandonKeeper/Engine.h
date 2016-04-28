@@ -14,6 +14,8 @@
 #include <iostream>
 #include <thread>
 #include <unordered_set>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace sf;
@@ -42,11 +44,13 @@ private:
 	static const int Engine::MIN_MAP_ZOOM = 0;
 
 	static const int Engine::PROCESS_SLEEP_TIME = 100;
-	static const int Engine::UPDATE_SLEEP_TIME = 8;
+	static const int Engine::UPDATE_SLEEP_TIME = 2;
 	static const int Engine::RENDER_SLEEP_TIME = 2;
 	static const int Engine::CREATURE_SLEEP_TIME = 10;
 
 	static const int Engine::MAP_REFRESH_SIZE = 120;
+
+	static const int Engine::SELECT_COOLDOWN = 10;
 
 	//const float vars
 	static const float Engine::CAMERA_ZOOM_RATIO;
@@ -85,6 +89,7 @@ private:
 	Clock* renderTimer;
 	Clock* updateTimer;
 	Clock* creatureTimer;
+	Clock* selectTimer;
 	View* camera;
 	View* GUI;
 	View* worldMap;
@@ -98,6 +103,7 @@ private:
 	Mutex* globalMutex;
 
 	vector<Tile*>* tiles;
+	vector<Tile*>* treasuryTiles;
 	map<int, Tile*>* selectedTiles;
 	unordered_set<Tile*>* changedTiles;
 	vector<Imp*>* workers;
@@ -113,6 +119,7 @@ private:
 	int scrollSpeed;
 	int cameraScrolls;
 	int worldMapScrolls;
+	int playerGold;
 	bool isRendering;
 	bool isUpdating;
 	bool hasCreatureUpdates;
@@ -154,13 +161,20 @@ private:
 
 	void addRandomCreature(Tile* tile);
 	void addImp(Tile* tile);
+	void addPlayerGold(int gold);
+	void removePlayerGold(int gold);
+	void setPlayerGold(int gold);
+	int getPlayerGold();
 
 public:
 
 	static const Clock* Engine::GAME_CLOCK;
 
-	Engine(bool isDebugging, int windowWidth = 1024, int windowHeight = 768);
+	Engine(bool loadGame = false, bool isDebugging = false, int windowWidth = 1024, int windowHeight = 768);
 	~Engine();
+
+	void save();
+	void load();
 };
 
 #endif

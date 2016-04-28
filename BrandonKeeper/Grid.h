@@ -7,6 +7,7 @@
 #include <queue>
 #include <stack>
 #include <unordered_map>
+#include <unordered_set>
 #include <iostream>
 
 using namespace std;
@@ -47,6 +48,8 @@ private:
 
 	priority_queue<pqItem, vector<pqItem>, greater<pqItem>>* pathfinder;
 	vector<Tile*>* tiles;
+	vector<Tile*>* treasuryTiles;
+	unordered_set<Tile*>* changedTiles;
 
 	map<int, Node*> grid;
 
@@ -69,9 +72,10 @@ private:
 
 public:
 
-	Grid(vector<Tile*>* tiles, int xDelta, int yDelta, bool isDebugging);
+	Grid(vector<Tile*>* tiles, vector<Tile*>* treasuryTiles, unordered_set<Tile*>* changedTiles, int xDelta, int yDelta, bool isDebugging);
 	~Grid();
 
+	void clear();
 	void printNodes();
 	void addNode(Tile* tile);
 	void initialize(Tile* seed);

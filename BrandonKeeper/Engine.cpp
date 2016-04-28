@@ -30,24 +30,22 @@ const float Engine::MAP_AVERAGE_Y = (Engine::MAP_MIN_Y + Engine::MAP_MAX_Y) / 2;
 
 const float Engine::MAP_TILE_RATIO = Engine::TILE_PIXELS / Engine::MAP_TILE_PIXELS;
 
-Engine::Engine(bool isDebugging, int windowWidth, int windowHeight)
+Engine::Engine(bool loadGame, bool isDebugging, int windowWidth, int windowHeight)
 {
 	this->isDebugging = isDebugging;
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
 
 	this->initializeEngine();
+
+	if (loadGame)
+		this->load();
+
 	this->start();
 }
 
 Engine::~Engine()
 {
-	SoundHandler::destroySounds();
-
-	this->updateThread->terminate();
-	this->renderThread->terminate();
-	this->creatureThread->terminate();
-
 	delete GAME_CLOCK;	
 	delete jobHandler;
 	delete window;
@@ -60,6 +58,7 @@ Engine::~Engine()
 	delete renderTimer;
 	delete updateTimer;
 	delete creatureTimer;
+	delete selectTimer;
 	delete camera;
 	delete GUI;
 	delete worldMap;
@@ -70,9 +69,6 @@ Engine::~Engine()
 	delete GUISprite;
 	delete cameraFrame;
 	delete globalMutex;
-	delete selectedTiles;
-	delete workers;
-	delete changedTiles;
 
 	for (Tile* tile : *tiles)
 		delete tile;
@@ -82,6 +78,14 @@ Engine::~Engine()
 
 	delete tiles;
 	delete creatures;
+	delete changedTiles;
+	delete selectedTiles;
+	delete workers;
+
+	creatureThread->terminate();
+	renderThread->terminate();
+	updateThread->terminate();
+	SoundHandler::destroySounds();
 }
 
 void Engine::initializeEngine()
@@ -96,6 +100,7 @@ void Engine::initializeEngine()
 	this->renderTimer = new Clock();
 	this->updateTimer = new Clock();
 	this->creatureTimer = new Clock();
+	this->selectTimer = new Clock();
 	this->camera = new View();
 	this->GUI = new View();
 	this->worldMap = new View();
@@ -104,14 +109,15 @@ void Engine::initializeEngine()
 	this->creatureTextures = new Texture();
 	this->mapSprite = new Sprite();
 	this->GUISprite = new Sprite();
-	this->hoveredTile = nullptr;
 	this->cameraFrame = new RectangleShape();
 	this->globalMutex = new Mutex();
 	this->tiles = new vector<Tile*>();
+	this->treasuryTiles = new vector<Tile*>();
 	this->selectedTiles = new map<int, Tile*>();
 	this->changedTiles = new unordered_set<Tile*>();
 	this->workers = new vector<Imp*>();
 	this->creatures = new vector<Creature*>();
+	this->hoveredTile = nullptr;
 
 	//initialize non-pointers
 	this->frameCounter = 0;
@@ -119,9 +125,10 @@ void Engine::initializeEngine()
 	this->renderPrintCeiling = 251;
 	this->updatePrintCeiling = 257;
 	this->creaturePrintCeiling = 263;
-	this->scrollSpeed = 8;
+	this->scrollSpeed = 2;
 	this->cameraScrolls = 0;
 	this->worldMapScrolls = 0;
+	this->playerGold = 1000;
 	this->isRendering = true;
 	this->isUpdating = true;
 	this->hasCreatureUpdates = true;
@@ -132,7 +139,7 @@ void Engine::initializeEngine()
 	this->isHoveredSelected = false;
 	this->isMapUpdating = false;
 
-	//this->window->setFramerateLimit(120);
+	this->window->setFramerateLimit(120);
 
 	this->initializeViews();
 	this->initializeTextures();
@@ -141,8 +148,8 @@ void Engine::initializeEngine()
 	this->initializeMap();
 
 	//advanced objects
-	this->jobHandler = new JobHandler(this->tiles, this->selectedTiles, this->workers, this->pathfinder, 1, Engine::WORLD_TILES, this->isDebugging);
-	this->pathfinder = new Grid(this->tiles, 1, Engine::WORLD_TILES, this->isDebugging);
+	this->jobHandler = new JobHandler(this->tiles, this->treasuryTiles, this->selectedTiles, this->workers, this->pathfinder, 1, Engine::WORLD_TILES, this->isDebugging);
+	this->pathfinder = new Grid(this->tiles, this->treasuryTiles, this->changedTiles, 1, Engine::WORLD_TILES, this->isDebugging);
 
 	this->pathfinder->initialize((*tiles)[129]);
 
@@ -223,20 +230,20 @@ void Engine::initializeWorld()
 
 		int random = rand() % 10000;
 
-		if (random < 2)
+		if (random < 1)
 			type = TileType::GEM;
 		else if (random < 8000)
 			type = TileType::EARTH;
+		else if (random < 9000)
+			type = TileType::GOLD;
 		else
-			type = TileType::DIRT;
+			type = TileType::TREASURY;
 
 		if (i < Engine::WORLD_TILES || i % Engine::WORLD_TILES == 0 || i % Engine::WORLD_TILES == Engine::WORLD_TILES - 1 || i > Engine::TOTAL_TILES - Engine::WORLD_TILES)
 			type = TileType::ROCK;
 
 		if (i == 129 || i == 130 || i == 257 || i == 258)
-		{
-			type = TileType::DIRT;
-		}
+			type = TileType::TREASURY;
 
 		tile = new Tile(this->tileTextures, position, type, i, Engine::TILE_PIXELS, Engine::MAP_TILE_PIXELS);
 
@@ -247,9 +254,7 @@ void Engine::initializeWorld()
 void Engine::initializeMap()
 {
 	for (int i = 0; i < Engine::TOTAL_TILES; i++)
-	{
 		this->mapImage->draw(*(*this->tiles)[i]->getMapSprite());
-	}
 
 	this->mapImage->display();
 }
@@ -262,9 +267,9 @@ void Engine::start()
 	this->jobHandler->start();
 
 	while (window->isOpen())
-	{
 		this->processInput();
-	}
+
+	exit(0);
 }
 
 void Engine::processInput()
@@ -483,6 +488,15 @@ void Engine::processInput()
 					this->isRendering = false;
 					this->isUpdating = false;
 					this->window->close();
+					exit(0);
+				}
+				else if (keyPressed == Keyboard::S)
+				{
+					this->save();
+				}
+				else if (keyPressed == Keyboard::L)
+				{
+					this->load();
 				}
 
 				break;
@@ -516,11 +530,11 @@ void Engine::processInput()
 
 void Engine::update()
 {
-	while (true)
+	while (window->isOpen())
 	{
 		Sleep(Engine::UPDATE_SLEEP_TIME);
 
-		if (this->isFocused && this->isUpdating)
+		if (this->isFocused && this->isUpdating && !this->isPaused)
 		{
 			this->handleMouseEvents();
 			this->updateCamera(this->scrollSpeed);
@@ -536,11 +550,13 @@ void Engine::update()
 
 void Engine::renderFrame()
 {
-	while (true)
+	while (window->isOpen())
 	{
-		if (this->isFocused && this->isRendering)
+		if (this->isFocused && this->isRendering && !this->isPaused)
 		{
 			Sleep(Engine::RENDER_SLEEP_TIME);
+
+			this->window->clear();
 
 			++this->frameCounter;
 
@@ -778,9 +794,9 @@ void Engine::updateMap()
 
 void Engine::updateCreatures()
 {
-	while (true)
+	while (window->isOpen())
 	{
-		if (this->hasCreatureUpdates)
+		if (this->hasCreatureUpdates && !this->isPaused)
 		{
 			if (isDebugging)
 				this->creatureTimer->restart();
@@ -881,7 +897,9 @@ void Engine::handleMouseEvents()
 		//else update tile selection
 		else if (this->hoveredTile != nullptr)
 		{
-			if (this->hoveredTile->getSelectable())
+			int milli = this->selectTimer->getElapsedTime().asMilliseconds();
+
+			if (milli > Engine::SELECT_COOLDOWN)
 			{
 				this->hoveredTile->setSelected(this->isHoveredSelected);
 				int ID = hoveredTile->getID();
@@ -895,6 +913,8 @@ void Engine::handleMouseEvents()
 					this->selectedTiles->erase(ID);
 					this->hoveredTile->setBeingExtracted(false);
 				}
+
+				this->selectTimer->restart();
 			}
 		}
 	}
@@ -976,7 +996,10 @@ void Engine::drawMap()
 
 	for (map_iterator it = selectedTiles->begin(); it != selectedTiles->end(); it++)
 	{
-		this->window->draw(*it->second->getMapSprite());
+		if (it->second->getVisible() && !it->second->getMineable())
+			this->selectedTiles->erase(it++);
+		else
+			this->window->draw(*it->second->getMapSprite());
 	}
 
 	int length = this->creatures->size();
@@ -1079,15 +1102,11 @@ void Engine::unlockMouse()
 void Engine::pause()
 {
 	this->isPaused = true;
-	this->isRendering = false;
-	this->isUpdating = false;
 }
 
 void Engine::unpause()
 {
 	this->isPaused = false;
-	this->isRendering = true;
-	this->isUpdating = true;
 }
 
 void Engine::addRandomCreature(Tile* tile)
@@ -1097,7 +1116,7 @@ void Engine::addRandomCreature(Tile* tile)
 
 void Engine::addImp(Tile* tile)
 {
-	if (tile->getTraversable())
+	if (tile->getTraversable() && tile->getVisible())
 	{
 		Vector2f* position = new Vector2f();
 		Vector2f* tilePosition = tile->getPosition();
@@ -1113,4 +1132,157 @@ void Engine::addImp(Tile* tile)
 
 		SoundHandler::playSpellSound("imp_spawn");
 	}
+}
+
+void Engine::addPlayerGold(int gold)
+{
+	this->playerGold += gold;
+}
+
+void Engine::removePlayerGold(int gold)
+{
+	this->playerGold -= gold;
+}
+
+void Engine::setPlayerGold(int gold)
+{
+	this->playerGold = gold;
+}
+
+int Engine::getPlayerGold()
+{
+	return this->playerGold;
+}
+
+void Engine::save()
+{
+	ofstream saveFile;
+	saveFile.clear();
+	saveFile.open("default.save");
+
+	saveFile << "camera\n";
+
+	Vector2f cameraCenter = camera->getCenter();
+
+	int camX = cameraCenter.x;
+	int camY = cameraCenter.y;
+
+	saveFile << camX << "\n" << camY << "\n";
+
+	int length = tiles->size();
+	
+	saveFile << "tiles\n";
+
+	for (int i = 0; i < length; i++)
+	{
+		Tile* current = (*this->tiles)[i];
+
+		int type = current->getType();
+		bool isSelected = current->getSelected();
+		bool isVisible = current->getVisible();
+
+		saveFile << i << " " << type << " " << isSelected << " " << isVisible << "\n";
+	}
+
+	length = workers->size();
+
+	saveFile << "workers\n";
+
+	for (int i = 0; i < length; i++)
+	{
+		Imp* imp = (*this->workers)[i];
+
+		Vector2f position = *imp->getPosition();
+		int x = position.x;
+		int y = position.y;
+
+		saveFile << i << " " << x << " " << y << "\n";
+	}
+
+	SoundHandler::playUrgentSound("voice_game_saved");
+}
+
+void Engine::load()
+{
+	creatures->clear();
+	workers->clear();
+	treasuryTiles->clear();
+	selectedTiles->clear();
+	pathfinder->clear();
+
+	pause();
+	jobHandler->pause();
+
+	string line;
+	ifstream saveFile;
+	saveFile.open("default.save");
+
+	while (getline(saveFile, line))
+	{
+		if (line == "camera")
+		{
+			getline(saveFile, line);
+
+			int x = stoi(line);
+
+			getline(saveFile, line);
+			
+			int y = stoi(line);
+
+			Vector2f cameraCenter(x, y);
+			camera->setCenter(cameraCenter);
+		}
+		else if (line == "tiles")
+		{
+			do
+			{
+				getline(saveFile, line);
+
+				istringstream buffer(line);
+				int index, type, isSelected, isVisible;
+
+				buffer >> index >> type >> isSelected >> isVisible;
+
+				Tile* current = (*this->tiles)[index];
+				current->reinit();
+				TileType tileType = (TileType)type;
+
+				current->setType(tileType);
+				current->setSelected(isSelected);
+				current->setVisible(isVisible);
+
+				if (tileType == TileType::TREASURY || tileType == TileType::TREASURY_MID || tileType == TileType::TREASURY_FULL)
+					treasuryTiles->push_back(current);
+
+				if (isSelected)
+					(*selectedTiles)[index] = current;
+			}
+			while (line != "workers");
+		}
+		else
+		{
+			istringstream buffer(line);
+			int index, x, y;
+
+			buffer >> index >> x >> y;
+
+			Vector2f* position = new Vector2f();
+			position->x = x;
+			position->y = y;
+
+			Imp* imp = new Imp(this->tiles, this->selectedTiles, this->changedTiles, this->workers, this->pathfinder, this->creatureTextures,
+							   position, Engine::TILE_PIXELS, Engine::WORLD_TILES, Engine::CREATURE_PIXELS, Engine::CREATURE_MAP_PIXELS);
+
+			this->creatures->push_back(imp);
+			this->workers->push_back(imp);
+		}
+	}	
+
+	this->pathfinder->initialize((*tiles)[129]);
+
+	jobHandler->unpause();
+	unpause();
+
+	SoundHandler::startGameMusic();
+	SoundHandler::playUrgentSound("voice_game_loaded");
 }

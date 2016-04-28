@@ -13,12 +13,14 @@ class Imp : public Creature
 
 private:
 
-	static const int MINE_COOLDOWN = 500;
+	static const int MINE_COOLDOWN = 750;
 	static const int MOVE_COOLDOWN = 5;
-	static const int STEP_COOLDOWN = 200;
+	static const int RENEGOTIATE_COOLDOWN = 2000;
+	static const int STEP_COOLDOWN = 225;
 
 	Clock* moveTimer;
 	Clock* mineTimer;
+	Clock* renegotiateTimer;
 	Clock* stepTimer;
 	map<int, Tile*>* selectedTiles;
 	unordered_set<Tile*>* changedTiles;
@@ -28,7 +30,7 @@ private:
 	int maxGold;
 	int goldPerSwing;
 
-	void giveJob(Imp* imp);
+	void renegotiate();
 
 public:
 

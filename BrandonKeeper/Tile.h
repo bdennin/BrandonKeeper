@@ -17,44 +17,66 @@ enum TileType
 	GEM = 3,
 	DIRT = 4,
 	TREASURY = 5,
-	LAIR = 6,
-	HATCHERY = 7,
-	TRAINING_ROOM = 8,
-	LIBRARY = 9,
+	TREASURY_MID = 6,
+	TREASURY_FULL = 7,
+	LAIR = 8,
+	HATCHERY = 9,
+	TRAINING_ROOM = 10,
+	LIBRARY = 11,
 };
 
 enum SelectedType
 {
-	NATURAL_A = 0,
-	NATURAL_B = 1,
-	NATURAL_C = 2,
-	NATURAL_D = 3,
-	NATURAL_E = 4,
-	NATURAL_F = 5,
-	HOVERED_A = 6,
-	HOVERED_B = 7,
-	HOVERED_C = 8,
-	HOVERED_D = 9,
-	HOVERED_E = 10,
-	HOVERED_F = 11,
-	SELECTED_A = 12,
-	SELECTED_B = 13,
-	SELECTED_C = 14,
-	SELECTED_D = 15,
-	SELECTED_E = 16,
-	SELECTED_F = 17,
-	HOVERED_AND_SELECTED_A = 18,
-	HOVERED_AND_SELECTED_B = 19,
-	HOVERED_AND_SELECTED_C = 20,
-	HOVERED_AND_SELECTED_D = 21,
-	HOVERED_AND_SELECTED_E = 22,
-	HOVERED_AND_SELECTED_F = 23,
-	MAP_A = 24,
-	MAP_B = 25,
-	MAP_C = 26,
-	MAP_D = 27,
-	MAP_E = 28,
-	MAP_F = 29,
+	INVISIBLE = 0,
+	INVISIBLE_AND_HOVERED_A = 1,
+	INVISIBLE_AND_HOVERED_B = 2,
+	INVISIBLE_AND_HOVERED_C = 3,
+	INVISIBLE_AND_HOVERED_D = 4,
+	INVISIBLE_AND_HOVERED_E = 5,
+	INVISIBLE_AND_HOVERED_F = 6,
+	INVISIBLE_AND_SELECTED_A = 7,
+	INVISIBLE_AND_SELECTED_B = 8, 
+	INVISIBLE_AND_SELECTED_C = 9, 
+	INVISIBLE_AND_SELECTED_D = 10, 
+	INVISIBLE_AND_SELECTED_E = 11, 
+	INVISIBLE_AND_SELECTED_F = 12,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_A = 13,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_B = 14,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_C = 15,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_D = 16,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_E = 17,
+	INVISIBLE_AND_HOVERED_AND_SELECTED_F = 18,
+	VISIBLE = 19,
+	VISIBLE_AND_HOVERED_A = 20,
+	VISIBLE_AND_HOVERED_B = 21,
+	VISIBLE_AND_HOVERED_C = 22,
+	VISIBLE_AND_HOVERED_D = 23,
+	VISIBLE_AND_HOVERED_E = 24,
+	VISIBLE_AND_HOVERED_F = 25,
+	VISIBLE_AND_SELECTED_A = 26,
+	VISIBLE_AND_SELECTED_B = 27,
+	VISIBLE_AND_SELECTED_C = 28,
+	VISIBLE_AND_SELECTED_D = 29,
+	VISIBLE_AND_SELECTED_E = 30,
+	VISIBLE_AND_SELECTED_F = 31,
+	VISIBLE_AND_HOVERED_AND_SELECTED_A = 32,
+	VISIBLE_AND_HOVERED_AND_SELECTED_B = 33,
+	VISIBLE_AND_HOVERED_AND_SELECTED_C = 34,
+	VISIBLE_AND_HOVERED_AND_SELECTED_D = 35,
+	VISIBLE_AND_HOVERED_AND_SELECTED_E = 36,
+	VISIBLE_AND_HOVERED_AND_SELECTED_F = 37,
+	MAP_INVISIBLE_A = 38,
+	MAP_INVISIBLE_B = 39,
+	MAP_INVISIBLE_C = 40,
+	MAP_INVISIBLE_D = 41,
+	MAP_INVISIBLE_E = 42,
+	MAP_INVISIBLE_F = 43,
+	MAP_A = 44,
+	MAP_B = 45,
+	MAP_C = 46,
+	MAP_D = 47,
+	MAP_E = 48,
+	MAP_F = 49,
 };
 
 class Tile
@@ -62,14 +84,14 @@ class Tile
 
 private:
 
-	static const Clock TEXTURE_CLOCK;
+	static Clock textureClock;
 
-	Texture* textureMap;
+	Texture* textures;
 	Vector2f* position;
 	Sprite* sprite;
 	Sprite* mapSprite;
 
-	TileType tileType;
+	TileType type;
 	SelectedType selectedType;
 	SelectedType mapSelectedType;
 	string tileName;
@@ -78,7 +100,7 @@ private:
 	int mapTileSize;
 	int ID;
 	int health;
-	int buildCost;
+	int cost;
 	int extractableGold;
 	int storeableGold;
 	int storedGold;
@@ -91,8 +113,11 @@ private:
 	bool isTraversable;
 	bool isMineable;
 	bool isReachable;
+	bool isOccupied;
 	bool isBeingExtracted;
 	bool hasExtractableGold;
+	bool hasDropOff;
+	bool isTreasuryType;
 
 	void initializeTileType(TileType tileType);
 	void setTextureByClock();
@@ -101,7 +126,9 @@ private:
 
 public:
 
-	Tile(Texture* textureMap, Vector2f* position, TileType tileType, int ID, int tileSize, int mapTileSize);
+	static const int TREASURY_MAX_GOLD = 1200;
+
+	Tile(Texture* textures, Vector2f* position, TileType type, int ID, int tileSize, int mapTileSize);
 	~Tile();
 
 	bool getHovered();
@@ -111,11 +138,16 @@ public:
 	void setSelected(bool isSelected);
 	void toggleSelected();
 	bool getSelectable();
+	bool getVisible();
+	void setVisible(bool isVisible);
 	bool getReachable();
 	void setReachable(bool isReachable);
 	bool getTraversable();
+	bool getMineable();
 	int getHealth();
 	void setHealth(int health);
+	bool getOccupied();
+	void setOccupied(bool isOccupied);
 	void setBeingExtracted(bool isBeingExtracted);
 	bool getBeingExtracted();
 	int getExtractableGold();
@@ -123,10 +155,19 @@ public:
 	void extract(bool playSound);
 	int getStoredGold();
 	void setStoredGold(int gold);
-	bool isFull();
-	bool hasGold();
+	int getStoreableGold();
+	void addGold(int gold);
+	void removeGold(int gold);
+	bool hasMaxGold();
+	bool containsGold();
+	bool getDropOff();
+	void setDropOff(bool hasDropOff);
+	void reinit();
+
 	TileType getType();
 	void setType(TileType type);
+	SelectedType getSelectedType();
+	SelectedType getMapSelectedType();
 
 	int getID();
 	int sell();

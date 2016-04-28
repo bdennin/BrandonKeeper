@@ -31,8 +31,11 @@ enum CreatureType
 
 enum SpriteType
 {
-	NATURAL = 0,
-	MAP = 1
+	WEST = 0,
+	NORTH = 1,
+	EAST = 2,
+	SOUTH = 3,
+	MAP = 4
 };
 
 class Creature
@@ -99,6 +102,10 @@ protected:
 	void moveNorth();
 	void moveEast();
 	void moveSouth();
+	void faceWest();
+	void faceNorth();
+	void faceEast();
+	void faceSouth();
 	void updateSprite();
 	void updateMapSprite();
 
